@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Kerr Capital · CRE Deal Triage</title>
+<title>Offer Oven</title>
 <style>
   :root{
     --bg:#0f1720; --panel:#141f2e; --panel2:#1a2636; --border:#24324a;
@@ -120,7 +120,7 @@
 <body>
 <header>
   <div>
-    <h1>Kerr Capital · Deal Triage</h1>
+    <h1>Offer Oven</h1>
     <div class="sub" id="headerSub">60-second intake underwriting — LTV · DSCR · Debt Yield · Channel Fit · Capital Stack</div>
   </div>
   <div style="display:flex;gap:10px;align-items:center">
@@ -412,32 +412,46 @@
           <div>
             <label>Financing Type</label>
             <select id="b-finType">
-              <option>SBA 7(a)</option><option>SBA Express</option>
-              <option>Bank Term Loan</option><option>Bank LOC (Revolver)</option>
-              <option>ABL (AR/Inventory Line)</option><option>Invoice Factoring</option>
-              <option>Revenue-Based Financing</option><option>MCA (Merchant Cash Advance)</option>
-              <option>Equipment Loan</option><option>Equipment Lease ($1 Buyout)</option>
+              <option>Private Credit Unitranche</option><option>Private Credit Term Loan</option>
+              <option>Mezzanine Debt</option><option>Cash Flow Loan (EBITDA-based)</option>
+              <option>ABL (Private / BDC)</option><option>Asset-Based Term Loan</option>
+              <option>Bank Term Loan (Stretch/Club)</option><option>Bank LOC (Revolver)</option>
+              <option>SBA 7(a)</option><option>SBA 504</option>
+              <option>Equipment Loan (Institutional)</option><option>Equipment Lease ($1 Buyout)</option>
               <option>Equipment Lease (FMV / Operating)</option><option>Sale-Leaseback</option>
-              <option>Inventory Financing</option><option>Franchise Financing</option>
-              <option>Acquisition / Partner Buyout</option>
+              <option>Growth Capital / Venture Debt</option><option>Recurring Revenue Loan (SaaS)</option>
+              <option>Acquisition Financing</option><option>Partner / Shareholder Buyout</option>
+              <option>Dividend Recap</option><option>DIP / Special Situations</option>
+              <option>Inventory Financing</option><option>Invoice Factoring</option>
+              <option>Revenue-Based Financing</option><option>MCA (last resort)</option>
             </select>
           </div>
           <div>
-            <label>Use of Proceeds</label>
+            <label>Purpose of Capital <span style="color:var(--accent);font-size:9px">★ drives stack</span></label>
             <select id="b-use">
-              <option>Working Capital</option><option>Equipment Purchase</option>
-              <option>Business Acquisition</option><option>Partner Buyout</option>
-              <option>Expansion / New Location</option><option>Inventory Build</option>
-              <option>Debt Consolidation / Refi</option><option>Payroll / AR Bridge</option>
-              <option>Marketing / Growth</option><option>Leasehold Improvements</option>
-              <option>Startup Capital</option>
+              <option>LBO / Platform Acquisition</option>
+              <option>Add-on / M&amp;A Rollup</option>
+              <option>Dividend Recapitalization</option>
+              <option>Partner / Shareholder Buyout</option>
+              <option>ESOP Transaction</option>
+              <option>Refinance / Debt Consolidation</option>
+              <option>Growth Capex / Expansion</option>
+              <option>Working Capital / Revolver</option>
+              <option>Equipment Purchase</option>
+              <option>DIP / Special Situations</option>
+              <option>Inventory / AR Bridge</option>
+              <option>Startup / Early Stage</option>
             </select>
           </div>
           <div>
-            <label>Preferred Term</label>
-            <select id="b-term">
-              <option>Short-term (&lt;2 yrs)</option><option>Medium (2-7 yrs)</option>
-              <option>Long-term (7-25 yrs)</option><option>Revolving</option>
+            <label>Sponsor Type <span style="color:var(--accent);font-size:9px">★ pricing signal</span></label>
+            <select id="b-sponsor">
+              <option value="pe">PE-Backed (institutional)</option>
+              <option value="indep">Independent Sponsor</option>
+              <option value="family">Family Office / HNW</option>
+              <option value="founder">Founder-Led / Closely Held</option>
+              <option value="strategic">Strategic / Corporate</option>
+              <option value="search">Search Fund / Fundless</option>
             </select>
           </div>
         </div>
@@ -486,29 +500,61 @@
           <div class="input-wrap"><label>Prior Year Revenue</label><input id="b-revPY" type="number" /><span class="unit">$</span></div>
           <div class="input-wrap"><label>2 Years Ago Revenue</label><input id="b-revPY2" type="number" /><span class="unit">$</span></div>
         </div>
-        <div class="section-header">Profitability</div>
+        <div class="section-header">Profitability (Institutional — Scrub add-backs; QoE quality matters)</div>
         <div class="grid g3">
           <div class="input-wrap"><label>Gross Profit (TTM)</label><input id="b-gp" type="number" /><span class="unit">$</span></div>
-          <div class="input-wrap"><label>EBITDA (TTM)</label><input id="b-ebitda" type="number" /><span class="unit">$</span></div>
-          <div class="input-wrap"><label>Owner Addbacks (SDE)</label><input id="b-addback" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>EBITDA (TTM) — Adj.</label><input id="b-ebitda" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Prior Year EBITDA</label><input id="b-ebitdaPY" type="number" /><span class="unit">$</span></div>
         </div>
-        <div class="section-header">Balance Sheet &amp; Existing Debt</div>
+        <div class="grid g3" style="margin-top:10px">
+          <div class="input-wrap"><label>Maintenance Capex (TTM)</label><input id="b-capex" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Cash Taxes (TTM)</label><input id="b-taxes" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Owner Addbacks (if SDE)</label><input id="b-addback" type="number" /><span class="unit">$</span></div>
+        </div>
+        <div class="section-header">Balance Sheet, Existing Debt &amp; Coverage</div>
         <div class="grid g3">
           <div class="input-wrap"><label>Cash / Liquidity on BS</label><input id="b-cash" type="number" /><span class="unit">$</span></div>
           <div class="input-wrap"><label>Accounts Receivable</label><input id="b-ar" type="number" /><span class="unit">$</span></div>
           <div class="input-wrap"><label>Inventory</label><input id="b-inv" type="number" /><span class="unit">$</span></div>
         </div>
         <div class="grid g3" style="margin-top:10px">
-          <div class="input-wrap"><label>Existing Business Debt</label><input id="b-exdebt" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Existing Senior Debt</label><input id="b-exdebt" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Existing Sub / Mezz Debt</label><input id="b-exsubdebt" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Existing Annual Interest Exp.</label><input id="b-exint" type="number" /><span class="unit">$</span></div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
           <div class="input-wrap"><label>Existing Annual Debt Service</label><input id="b-exds" type="number" /><span class="unit">$</span></div>
-          <div class="input-wrap"><label>Monthly Rent / Occupancy</label><input id="b-rent" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Monthly Rent / Lease</label><input id="b-rent" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Enterprise Value (purchase or implied)</label><input id="b-ev" type="number" /><span class="unit">$</span></div>
+        </div>
+        <div class="section-header">Middle-Market Signals (Private Credit &amp; Bank underwriters care about these)</div>
+        <div class="grid g3">
+          <div><label>Top Customer Concentration</label><input id="b-concCust" type="number" step="0.01" placeholder="0.15" /><span style="font-size:10px;color:var(--muted)">as decimal (e.g. 0.15 = 15%)</span></div>
+          <div><label>Top 10 Customer Concentration</label><input id="b-conc10" type="number" step="0.01" placeholder="0.50" /></div>
+          <div><label>Recurring Revenue %</label><input id="b-recurring" type="number" step="0.01" placeholder="0.40" /></div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
+          <div><label>EBITDA Quality (addback / adj EBITDA)</label><input id="b-ebitdaQual" type="number" step="0.01" placeholder="0.10" /><span style="font-size:10px;color:var(--muted)">lower = higher quality</span></div>
+          <div><label>Industry Cyclicality</label>
+            <select id="b-cyclical">
+              <option value="defensive">Defensive / Non-cyclical</option>
+              <option value="neutral">Neutral</option>
+              <option value="cyclical">Cyclical</option>
+              <option value="hyper">Hyper-cyclical (commodity/discretionary)</option>
+            </select>
+          </div>
+          <div><label>QoE Completed?</label>
+            <select id="b-qoe">
+              <option>No</option><option>In process</option><option>Yes — Big 4 / top tier</option><option>Yes — regional</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- STEP 3: Bank Statement / MCA diligence -->
     <div class="card">
-      <h2><span><span class="step">3</span>Bank Statement &amp; MCA Diligence</span><span style="font-size:10px;color:var(--muted);text-transform:none">Critical for revenue-based / MCA / factoring</span></h2>
+      <h2><span><span class="step">3</span>Alternative / Sub-Bankable Diligence</span><span style="font-size:10px;color:var(--muted);text-transform:none">Optional — only if deal drops below institutional threshold (&lt;$1M EBITDA, stacked MCA, derog credit)</span></h2>
       <div class="card-body">
         <div class="grid g3">
           <div class="input-wrap"><label>Avg Monthly Deposits (3mo)</label><input id="b-deposits" type="number" /><span class="unit">$</span></div>
@@ -595,18 +641,28 @@
     </div>
 
     <div class="card">
-      <h2><span>Core Business Metrics</span></h2>
+      <h2><span>Middle-Market Credit Profile</span></h2>
       <div class="card-body">
+        <div id="b-scaleBand" style="padding:10px 12px;background:#0b131f;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="color:var(--muted);font-size:10px;letter-spacing:.8px;text-transform:uppercase">Deal Classification</div>
+            <div id="b-scaleBandVal" style="font-weight:700;font-size:17px;margin-top:2px">—</div>
+          </div>
+          <div style="text-align:right">
+            <div style="color:var(--muted);font-size:10px;letter-spacing:.8px;text-transform:uppercase">Private Credit Eligible</div>
+            <div id="b-pcEligible" style="font-weight:700;font-size:15px;margin-top:2px">—</div>
+          </div>
+        </div>
         <div class="metric-grid">
-          <div class="metric" id="bm-dscr"><div class="name">Business DSCR</div><div class="val">–</div><div class="bench">Target ≥ 1.25x</div></div>
+          <div class="metric" id="bm-totlev"><div class="name">Pro-Forma Total Leverage</div><div class="val">–</div><div class="bench">Target ≤ 5.0x · Max 6.0x</div></div>
+          <div class="metric" id="bm-srlev"><div class="name">Pro-Forma Senior Leverage</div><div class="val">–</div><div class="bench">Target ≤ 4.0x · Max 4.5x</div></div>
+          <div class="metric" id="bm-intcov"><div class="name">Interest Coverage</div><div class="val">–</div><div class="bench">Target ≥ 2.5x · EBITDA/Int</div></div>
           <div class="metric" id="bm-fccr"><div class="name">FCCR</div><div class="val">–</div><div class="bench">Target ≥ 1.20x</div></div>
-          <div class="metric" id="bm-lev"><div class="name">Debt / EBITDA</div><div class="val">–</div><div class="bench">Target ≤ 3.5x</div></div>
-          <div class="metric" id="bm-growth"><div class="name">Revenue Growth (YoY)</div><div class="val">–</div><div class="bench">Target ≥ 0%</div></div>
           <div class="metric" id="bm-margin"><div class="name">EBITDA Margin</div><div class="val">–</div><div class="bench">Target ≥ 10%</div></div>
-          <div class="metric" id="bm-gmargin"><div class="name">Gross Margin</div><div class="val">–</div><div class="bench">Industry-dependent</div></div>
-          <div class="metric" id="bm-req"><div class="name">Request / Revenue</div><div class="val">–</div><div class="bench">Target ≤ 30%</div></div>
-          <div class="metric" id="bm-liq"><div class="name">Liquidity / Request</div><div class="val">–</div><div class="bench">Target ≥ 10%</div></div>
-          <div class="metric" id="bm-nsf"><div class="name">Bank Health (NSFs)</div><div class="val">–</div><div class="bench">Target = 0</div></div>
+          <div class="metric" id="bm-cagr"><div class="name">Revenue CAGR (2yr)</div><div class="val">–</div><div class="bench">Target ≥ 0%</div></div>
+          <div class="metric" id="bm-ltvev"><div class="name">LTV on Enterprise Value</div><div class="val">–</div><div class="bench">Target ≤ 55% · Max 65%</div></div>
+          <div class="metric" id="bm-conc"><div class="name">Top Customer Conc.</div><div class="val">–</div><div class="bench">Target ≤ 15%</div></div>
+          <div class="metric" id="bm-liq"><div class="name">Sponsor Liq. / Request</div><div class="val">–</div><div class="bench">Target ≥ 10%</div></div>
         </div>
         <div class="section-header">Deal-Specific Metrics</div>
         <div id="b-specificMetrics" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:12px"></div>
@@ -949,36 +1005,103 @@ function switchTab(page){
 // ===================== BUSINESS / EQUIPMENT PAGE =====================
 const bnum = id => { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; };
 
+// Channel set tuned for $1M-$100M middle-market deals — institutional private debt first
+// Pricing: rates are ALL-IN approximations based on SOFR ~5.3% + spread convention (Q2 2026)
+// Gating: minEbitda gates hard — private credit funds won't commit below their minimums
 const bChannels = [
-  {name:'SBA 7(a)',           maxAmt:5_000_000,  term:'10-25 yrs', rate:[0.105,0.115],
-   minFICO:680, minDSCR:1.15, minTIB:2, maxLev:4, requiresProfit:true, noMCA:true},
-  {name:'SBA Express',        maxAmt:500_000,    term:'7-10 yrs',  rate:[0.105,0.13],
-   minFICO:680, minDSCR:1.10, minTIB:2, maxLev:4, requiresProfit:true, noMCA:true},
-  {name:'Bank Term Loan',     maxAmt:10_000_000, term:'3-7 yrs',   rate:[0.075,0.095],
-   minFICO:700, minDSCR:1.25, minTIB:3, maxLev:3.5, requiresProfit:true, noMCA:true},
-  {name:'Bank LOC',           maxAmt:2_000_000,  term:'Revolving', rate:[0.08,0.11],
-   minFICO:680, minDSCR:1.20, minTIB:2, maxLev:4, requiresProfit:true, noMCA:true},
-  {name:'ABL (AR/Inv Line)',  maxAmt:20_000_000, term:'Revolving', rate:[0.09,0.13],
-   minFICO:640, minDSCR:1.10, minTIB:2, maxLev:6, requiresProfit:false, noMCA:false,
-   needsAR:true},
-  {name:'Invoice Factoring',  maxAmt:10_000_000, term:'30-90 days',rate:[0.15,0.35],
-   minFICO:550, minDSCR:0.9, minTIB:0.5, maxLev:99, requiresProfit:false, noMCA:false,
-   needsAR:true},
-  {name:'Revenue-Based Fin.', maxAmt:2_000_000,  term:'6-24 mo',   rate:[0.25,0.50],
-   minFICO:600, minDSCR:0.9, minTIB:1, maxLev:99, requiresProfit:false, noMCA:false,
-   needsDeposits:true},
-  {name:'MCA',                maxAmt:1_000_000,  term:'3-18 mo',   rate:[0.40,0.80],
-   minFICO:500, minDSCR:0, minTIB:0.5, maxLev:99, requiresProfit:false, noMCA:false,
-   needsDeposits:true, mcaTolerant:true},
-  {name:'Equipment Loan',     maxAmt:5_000_000,  term:'3-10 yrs',  rate:[0.075,0.12],
-   minFICO:650, minDSCR:1.15, minTIB:2, maxLev:5, requiresProfit:false, noMCA:false,
-   needsEquip:true},
-  {name:'Equipment Lease',    maxAmt:5_000_000,  term:'2-7 yrs',   rate:[0.08,0.14],
-   minFICO:620, minDSCR:1.10, minTIB:1, maxLev:6, requiresProfit:false, noMCA:false,
-   needsEquip:true},
-  {name:'Sale-Leaseback',     maxAmt:10_000_000, term:'3-10 yrs',  rate:[0.09,0.15],
-   minFICO:620, minDSCR:1.10, minTIB:2, maxLev:6, requiresProfit:false, noMCA:false,
-   needsEquip:true}
+  // ===== INSTITUTIONAL PRIVATE CREDIT — CORE & UPPER MIDDLE MARKET =====
+  {name:'Unitranche — Upper MM', maxAmt:150_000_000, term:'5-7 yrs', rate:[0.095,0.115],
+   minFICO:0, minDSCR:1.15, minIntCov:2.0, minTIB:3, maxLev:5.5, maxSrLev:5.5, minEbitda:15_000_000, minReq:25_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'CORE/UMM',
+   note:'Single-tranche first-lien; Churchill / Antares / Golub / Ares territory'},
+  {name:'Unitranche — Core MM', maxAmt:75_000_000, term:'5-7 yrs', rate:[0.10,0.125],
+   minFICO:0, minDSCR:1.15, minIntCov:2.0, minTIB:3, maxLev:5.5, maxSrLev:5.5, minEbitda:5_000_000, minReq:10_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'LMM/CORE',
+   note:'Blended senior/junior; 50-75bp covenant cushion'},
+  {name:'Unitranche — Lower MM', maxAmt:40_000_000, term:'5-6 yrs', rate:[0.105,0.135],
+   minFICO:0, minDSCR:1.15, minIntCov:1.8, minTIB:3, maxLev:5.0, maxSrLev:5.0, minEbitda:2_000_000, minReq:5_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'LMM',
+   note:'Main Street / Monroe / Twin Brook / Fifth Third / BDCs'},
+  {name:'Senior Stretch Term Loan', maxAmt:75_000_000, term:'5-7 yrs', rate:[0.09,0.115],
+   minFICO:0, minDSCR:1.20, minIntCov:2.5, minTIB:3, maxLev:4.5, maxSrLev:4.5, minEbitda:3_000_000, minReq:5_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'LMM/CORE',
+   note:'Senior-only first lien at cash-flow leverage'},
+  {name:'First Lien / Second Lien Split', maxAmt:100_000_000, term:'6/7 yrs', rate:[0.095,0.145],
+   minFICO:0, minDSCR:1.10, minIntCov:1.8, minTIB:3, maxLev:6.0, maxSrLev:4.25, minEbitda:10_000_000, minReq:20_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'CORE',
+   note:'1L + 2L structure — extra leverage at ~200bp premium'},
+  {name:'Mezzanine Debt', maxAmt:50_000_000, term:'5-7 yrs', rate:[0.11,0.14],
+   minFICO:0, minDSCR:1.05, minIntCov:1.5, minTIB:3, maxLev:6.5, maxSrLev:4.0, minEbitda:3_000_000, minReq:3_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'LMM/CORE',
+   note:'Cash+PIK or with warrants; layered on top of senior'},
+  {name:'Holdco / PIK Notes', maxAmt:40_000_000, term:'5-7 yrs', rate:[0.13,0.16],
+   minFICO:0, minDSCR:1.0, minIntCov:1.3, minTIB:3, maxLev:7.0, maxSrLev:5.5, minEbitda:5_000_000, minReq:5_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'CORE/UMM',
+   note:'Structurally subordinate; for dividend recap / incremental leverage'},
+  {name:'ABL Revolver (Private/BDC)', maxAmt:100_000_000, term:'5 yr Revolver', rate:[0.08,0.105],
+   minFICO:0, minDSCR:1.10, minIntCov:2.5, minTIB:2, maxLev:6.5, maxSrLev:5.5, minEbitda:1_000_000, minReq:3_000_000,
+   requiresProfit:false, noMCA:false, needsAR:true, category:'private', tag:'ANY',
+   note:'85% AR + 50-60% inventory borrowing base; SOFR+275-450'},
+  {name:'Recurring Revenue / ARR Loan', maxAmt:50_000_000, term:'3-5 yrs', rate:[0.095,0.135],
+   minFICO:0, minDSCR:0.9, minIntCov:0, minTIB:2, maxLev:99, maxSrLev:99, minEbitda:0, minReq:3_000_000,
+   requiresProfit:false, noMCA:true, category:'private', tag:'SAAS',
+   note:'Sized on ARR (3-7x) not EBITDA — for SaaS / subscription'},
+  {name:'Growth / Venture Debt', maxAmt:30_000_000, term:'3-4 yrs', rate:[0.11,0.15],
+   minFICO:0, minDSCR:0.9, minIntCov:0, minTIB:2, maxLev:99, maxSrLev:99, minEbitda:0, minReq:2_000_000,
+   requiresProfit:false, noMCA:true, category:'private', tag:'GROWTH',
+   note:'VC-backed; warrants + final payment; Hercules / SVB / Runway'},
+  // ===== BANK / SYNDICATED =====
+  {name:'Bank Club / Stretch TL', maxAmt:150_000_000, term:'5-7 yrs', rate:[0.075,0.095],
+   minFICO:0, minDSCR:1.30, minIntCov:3.0, minTIB:5, maxLev:4.0, maxSrLev:4.0, minEbitda:7_500_000, minReq:15_000_000,
+   requiresProfit:true, noMCA:true, category:'bank', tag:'CORE/UMM',
+   note:'Multi-bank club; tighter covenants; SOFR+300-400'},
+  {name:'Bank Term Loan (Conv.)', maxAmt:35_000_000, term:'5-7 yrs', rate:[0.075,0.095],
+   minFICO:700, minDSCR:1.25, minIntCov:3.0, minTIB:3, maxLev:3.5, maxSrLev:3.5, minEbitda:1_500_000, minReq:2_000_000,
+   requiresProfit:true, noMCA:true, category:'bank', tag:'LMM',
+   note:'Conventional bank; requires scrubbed financials + QoE'},
+  {name:'Bank ABL Revolver', maxAmt:100_000_000, term:'5 yr Revolver', rate:[0.07,0.09],
+   minFICO:680, minDSCR:1.15, minIntCov:2.5, minTIB:3, maxLev:5.0, maxSrLev:5.0, minEbitda:2_000_000, minReq:3_000_000,
+   requiresProfit:false, noMCA:true, needsAR:true, category:'bank', tag:'ANY',
+   note:'Wells / BofA / PNC; cheapest working capital available'},
+  {name:'Term Loan B (Syndicated)', maxAmt:500_000_000, term:'7 yrs', rate:[0.08,0.105],
+   minFICO:0, minDSCR:1.10, minIntCov:2.0, minTIB:3, maxLev:6.0, maxSrLev:5.0, minEbitda:50_000_000, minReq:75_000_000,
+   requiresProfit:true, noMCA:true, category:'bank', tag:'UMM',
+   note:'Broadly syndicated; rated; cov-lite possible at scale'},
+  // ===== SBA (capped sub-$5M EBITDA territory) =====
+  {name:'SBA 7(a)', maxAmt:5_000_000, term:'10-25 yrs', rate:[0.10,0.115],
+   minFICO:680, minDSCR:1.15, minIntCov:0, minTIB:2, maxLev:4.0, maxSrLev:4.0, minEbitda:250_000, minReq:1_000_000,
+   requiresProfit:true, noMCA:true, category:'sba', tag:'SMALL',
+   note:'Personal guarantee; full collateral; ≤$5M cap'},
+  {name:'SBA 504', maxAmt:15_000_000, term:'10-25 yrs', rate:[0.065,0.09],
+   minFICO:680, minDSCR:1.15, minIntCov:0, minTIB:2, maxLev:4.0, maxSrLev:4.0, minEbitda:250_000, minReq:1_000_000,
+   requiresProfit:true, noMCA:true, category:'sba', tag:'SMALL/RE',
+   note:'50% bank + 40% CDC + 10% equity; RE / heavy equipment only'},
+  // ===== SPECIALTY =====
+  {name:'Equipment Loan (Institutional)', maxAmt:100_000_000, term:'5-10 yrs', rate:[0.07,0.10],
+   minFICO:0, minDSCR:1.15, minIntCov:0, minTIB:2, maxLev:5.0, maxSrLev:5.0, minEbitda:500_000, minReq:1_000_000,
+   requiresProfit:false, noMCA:false, needsEquip:true, category:'specialty', tag:'HARD ASSET',
+   note:'Collateralized by equipment; 85-95% advance'},
+  {name:'Sale-Leaseback (RE / Equip)', maxAmt:150_000_000, term:'10-20 yrs', rate:[0.08,0.115],
+   minFICO:0, minDSCR:1.10, minIntCov:0, minTIB:2, maxLev:6.0, maxSrLev:6.0, minEbitda:1_000_000, minReq:3_000_000,
+   requiresProfit:false, noMCA:false, needsEquip:true, category:'specialty', tag:'HARD ASSET',
+   note:'Monetize owned RE / equipment via triple-net lease'},
+  {name:'Equipment Lease', maxAmt:50_000_000, term:'2-7 yrs', rate:[0.075,0.115],
+   minFICO:620, minDSCR:1.05, minIntCov:0, minTIB:1, maxLev:6.0, maxSrLev:6.0, minEbitda:0, minReq:1_000_000,
+   requiresProfit:false, noMCA:false, needsEquip:true, category:'specialty', tag:'HARD ASSET',
+   note:'$1 buyout or FMV; off-balance-sheet option'},
+  // ===== ALTERNATIVE / LAST-RESORT (still offered for sub-bankable) =====
+  {name:'Invoice Factoring', maxAmt:50_000_000, term:'30-90 days', rate:[0.12,0.24],
+   minFICO:550, minDSCR:0.9, minIntCov:0, minTIB:0.5, maxLev:99, maxSrLev:99, minEbitda:0, minReq:1_000_000,
+   requiresProfit:false, noMCA:false, needsAR:true, category:'alt', tag:'SUB-BANK',
+   note:'Non-recourse / recourse AR purchase; trade credit risk'},
+  {name:'Revenue-Based Financing', maxAmt:10_000_000, term:'12-36 mo', rate:[0.18,0.30],
+   minFICO:600, minDSCR:0.9, minIntCov:0, minTIB:1, maxLev:99, maxSrLev:99, minEbitda:0, minReq:1_000_000,
+   requiresProfit:false, noMCA:false, needsDeposits:true, category:'alt', tag:'SUB-BANK',
+   note:'% of monthly revenue; for businesses without EBITDA'},
+  {name:'MCA (last resort)', maxAmt:2_000_000, term:'3-18 mo', rate:[0.40,0.80],
+   minFICO:500, minDSCR:0, minIntCov:0, minTIB:0.5, maxLev:99, maxSrLev:99, minEbitda:0, minReq:1_000_000,
+   requiresProfit:false, noMCA:false, needsDeposits:true, mcaTolerant:true, category:'alt', tag:'LAST RESORT',
+   note:'Bridge only; refinance ASAP into institutional capital'}
 ];
 
 function revealBizFields(){
@@ -991,10 +1114,14 @@ function updateBiz(){
   revealBizFields();
   const request = bnum('b-request');
   const revTTM = bnum('b-revTTM'), revPY = bnum('b-revPY'), revPY2 = bnum('b-revPY2');
-  const gp = bnum('b-gp'), ebitda = bnum('b-ebitda'), addback = bnum('b-addback');
+  const gp = bnum('b-gp'), ebitda = bnum('b-ebitda'), ebitdaPY = bnum('b-ebitdaPY'), addback = bnum('b-addback');
+  const capex = bnum('b-capex'), taxes = bnum('b-taxes');
   const sde = ebitda + addback;
   const cash = bnum('b-cash'), ar = bnum('b-ar'), inv = bnum('b-inv');
-  const exDebt = bnum('b-exdebt'), exDS = bnum('b-exds'), rent = bnum('b-rent')*12;
+  const exSrDebt = bnum('b-exdebt'), exSubDebt = bnum('b-exsubdebt');
+  const exDebt = exSrDebt + exSubDebt;
+  const exInt = bnum('b-exint'), exDS = bnum('b-exds'), rent = bnum('b-rent')*12;
+  const ev = bnum('b-ev');
   const deposits = bnum('b-deposits'), adb = bnum('b-adb'), nsf = bnum('b-nsf');
   const mcaPos = parseInt($('b-mcaPos').value) || 0, mcaPay = bnum('b-mcaPay');
   const fico = bnum('b-fico'), bizCredit = bnum('b-bizcredit');
@@ -1002,111 +1129,203 @@ function updateBiz(){
   const tib = bnum('b-tib'), exp = bnum('b-exp');
   const derog = $('b-derog').value === 'Yes';
   const priorSBA = $('b-priorSBA').value;
+  const use = $('b-use').value;
+  const sponsor = $('b-sponsor').value;
+  const concCust = bnum('b-concCust'), conc10 = bnum('b-conc10'), recurring = bnum('b-recurring');
+  const ebitdaQual = bnum('b-ebitdaQual');
+  const cyclical = $('b-cyclical').value;
+  const qoe = $('b-qoe').value;
 
-  // Proposed new annual debt service (estimate using 10% blended for sizing)
-  const proposedRate = 0.10, proposedYears = 5;
+  // ===== PRO-FORMA CAPITAL STRUCTURE =====
+  // Proposed new interest expense (assume 10% blended for sizing)
+  const proposedRate = 0.10, proposedYears = 6;
   const newDS = calcDebtService(request, proposedRate, proposedYears);
+  const newInt = request * proposedRate; // approximation for coverage calcs
   const totalDS = exDS + newDS;
-  const mcaAnnual = mcaPay * 260; // ~260 business days/yr for daily MCA
+  const totalInt = exInt + newInt;
+  const mcaAnnual = mcaPay * 260;
 
-  // Core metrics
-  const dscr = totalDS ? sde / totalDS : 0;
-  const fccr = (totalDS + rent) ? (sde - 0) / (totalDS + rent) : 0;
-  const leverage = ebitda ? (exDebt + request) / ebitda : 0;
-  const growth = revPY ? (revTTM - revPY)/revPY : 0;
+  // Assume "sub" use classifications — for senior-only products we count request as senior
+  const isJunior = /Mezzanine|Holdco|Sub|PIK/.test($('b-finType').value);
+  const pfSrDebt = exSrDebt + (isJunior ? 0 : request);
+  const pfSubDebt = exSubDebt + (isJunior ? request : 0);
+  const pfTotalDebt = pfSrDebt + pfSubDebt;
+
+  // ===== CORE MIDDLE-MARKET METRICS =====
+  const totLev = ebitda ? pfTotalDebt / ebitda : 0;
+  const srLev = ebitda ? pfSrDebt / ebitda : 0;
+  const intCov = totalInt ? ebitda / totalInt : 0;
+  // FCCR = (EBITDA - Capex - Taxes) / (Interest + Principal + Rent)
+  const fccrNum = ebitda - capex - taxes;
+  const fccrDen = totalDS + rent;
+  const fccr = fccrDen ? fccrNum / fccrDen : 0;
   const ebitdaMargin = revTTM ? ebitda/revTTM : 0;
   const gMargin = revTTM ? gp/revTTM : 0;
-  const reqToRev = revTTM ? request/revTTM : 0;
+  // 2-yr CAGR; fall back to YoY if no T-2
+  const cagr = revPY2 > 0 ? Math.pow(revTTM/revPY2, 0.5) - 1
+    : revPY > 0 ? (revTTM/revPY - 1) : 0;
+  const ltvEv = ev > 0 ? pfTotalDebt / ev : 0;
   const liqToReq = request ? liq/request : 0;
+  const reqToRev = revTTM ? request/revTTM : 0;
 
+  // Legacy DSCR kept for channel gating back-compat
+  const dscr = totalDS ? sde / totalDS : 0;
+  const leverage = totLev; // alias for backward-compat
+
+  // ===== EBITDA SCALE CLASSIFICATION =====
+  let scale, scaleLabel, scaleColor;
+  if(ebitda >= 50_000_000){ scale='UMM'; scaleLabel='Upper Middle Market · $50M+ EBITDA'; scaleColor='var(--accent)'; }
+  else if(ebitda >= 15_000_000){ scale='CORE'; scaleLabel='Core Middle Market · $15-50M EBITDA'; scaleColor='var(--accent)'; }
+  else if(ebitda >= 5_000_000){ scale='LMM'; scaleLabel='Lower Middle Market · $5-15M EBITDA'; scaleColor='#5dade2'; }
+  else if(ebitda >= 2_000_000){ scale='LMM-'; scaleLabel='Sub-LMM · $2-5M EBITDA (stretch for PC)'; scaleColor='#f39c12'; }
+  else if(ebitda >= 500_000){ scale='SMALL'; scaleLabel='Small Business · $500K-2M EBITDA (SBA / bank)'; scaleColor='#f39c12'; }
+  else if(ebitda > 0){ scale='MICRO'; scaleLabel='Micro · <$500K EBITDA (SBA / alt only)'; scaleColor='var(--red)'; }
+  else { scale='NONE'; scaleLabel='No EBITDA reported'; scaleColor='var(--muted)'; }
+  $('b-scaleBandVal').textContent = scaleLabel;
+  $('b-scaleBandVal').style.color = scaleColor;
+
+  // Private credit eligibility signal
+  const pcBasic = ebitda>=2_000_000 && tib>=3 && !derog && concCust<=0.35 && srLev<=5.5;
+  const pcIdeal = ebitda>=5_000_000 && intCov>=2 && ebitdaMargin>=0.10 && concCust<=0.25 && srLev<=4.5;
+  const pcLabel = pcIdeal ? 'YES — Core PC territory' : pcBasic ? 'Possible — LMM stretch' : 'No — too small / weak';
+  const pcColor = pcIdeal ? 'var(--green)' : pcBasic ? 'var(--yellow)' : 'var(--red)';
+  $('b-pcEligible').textContent = pcLabel;
+  $('b-pcEligible').style.color = pcColor;
+
+  // ===== TILE RENDERING =====
   const tile = (id, val, status, bench) => setMetric(id, val, status, bench);
-  tile('bm-dscr',    fmtX(dscr),    dscr>=1.25?'green':dscr>=1.10?'yellow':'red');
+  tile('bm-totlev',  fmtX(totLev),  totLev<=5?'green':totLev<=6?'yellow':'red');
+  tile('bm-srlev',   fmtX(srLev),   srLev<=4?'green':srLev<=4.5?'yellow':'red');
+  tile('bm-intcov',  fmtX(intCov),  intCov>=2.5?'green':intCov>=1.8?'yellow':'red');
   tile('bm-fccr',    fmtX(fccr),    fccr>=1.20?'green':fccr>=1.05?'yellow':'red');
-  tile('bm-lev',     fmtX(leverage),leverage<=3.5?'green':leverage<=5?'yellow':'red');
-  tile('bm-growth',  fmtPct(growth),growth>=0?'green':growth>=-0.10?'yellow':'red');
   tile('bm-margin',  fmtPct(ebitdaMargin), ebitdaMargin>=0.10?'green':ebitdaMargin>=0.05?'yellow':'red');
-  tile('bm-gmargin', fmtPct(gMargin),'green','Industry-dependent');
-  tile('bm-req',     fmtPct(reqToRev), reqToRev<=0.30?'green':reqToRev<=0.50?'yellow':'red');
+  tile('bm-cagr',    fmtPct(cagr),  cagr>=0?'green':cagr>=-0.05?'yellow':'red');
+  tile('bm-ltvev',   fmtPct(ltvEv), ltvEv<=0.55?'green':ltvEv<=0.65?'yellow':'red');
+  tile('bm-conc',    concCust?fmtPct(concCust):'—', concCust<=0.15?'green':concCust<=0.25?'yellow':'red');
   tile('bm-liq',     fmtPct(liqToReq), liqToReq>=0.10?'green':liqToReq>=0.05?'yellow':'red');
-  tile('bm-nsf',     nsf.toFixed(0), nsf===0?'green':nsf<=2?'yellow':'red', 'Target = 0');
 
   // Deal-specific metrics panel
-  renderBizSpecific({ft:$('b-finType').value, deposits, adb, mcaPos, ar, inv, request, sde});
+  renderBizSpecific({ft:$('b-finType').value, deposits, adb, mcaPos, ar, inv, request, sde, ev, ebitda, recurring, ebitdaPY, qoe});
 
-  // Channel / product fit
+  // ===== CHANNEL / PRODUCT FIT =====
   const bbody = $('b-channelBody'); bbody.innerHTML = '';
   let bestProduct = null, bestScore = -1;
   bChannels.forEach(ch => {
+    const minFICO = ch.minFICO || 0;
+    const minIntCov = ch.minIntCov || 0;
+    const maxSrLev = ch.maxSrLev !== undefined ? ch.maxSrLev : ch.maxLev;
     const checks = [
-      fico>=ch.minFICO, dscr>=ch.minDSCR, tib>=ch.minTIB,
-      leverage<=ch.maxLev, !(ch.requiresProfit && ebitda<=0),
+      !minFICO || fico>=minFICO,
+      dscr>=ch.minDSCR || ebitda>=ch.minEbitda*1.5, // very strong EBITDA overrides DSCR check
+      tib>=ch.minTIB,
+      totLev<=ch.maxLev,
+      srLev<=maxSrLev,
+      !minIntCov || intCov>=minIntCov || intCov===0,
+      !(ch.requiresProfit && ebitda<=0),
       !(ch.noMCA && mcaPos>0), !derog || !ch.noMCA,
       !(ch.needsAR && ar<=0), !(ch.needsDeposits && deposits<=0),
-      !(ch.needsEquip && bnum('b-equipCost')<=0 && !/Equipment|Sale/.test($('b-finType').value))
+      !(ch.needsEquip && bnum('b-equipCost')<=0 && !/Equipment|Sale/.test($('b-finType').value)),
+      ebitda >= (ch.minEbitda||0),
+      request >= (ch.minReq||0)
     ];
     const fails = checks.filter(x=>!x).length;
     const v = fails===0?'green':fails<=1?'yellow':'red';
     const maxAmt = Math.min(ch.maxAmt,
-      ch.needsAR ? ar*0.85 + inv*0.50 : Infinity,
-      ch.needsDeposits ? deposits*1.0 : Infinity
+      ch.needsAR ? ar*0.85 + inv*0.55 : Infinity,
+      ch.needsDeposits ? deposits*12 : Infinity,
+      // EBITDA-sized cap for cash-flow products
+      ebitda>0 && !ch.needsAR && !ch.needsEquip ? ebitda * ch.maxLev : Infinity
     );
+    // Category badge
+    const catLabel = ch.category==='private' ? '<span style="font-size:9px;color:var(--accent);letter-spacing:.5px;font-weight:600">PRIVATE</span>'
+      : ch.category==='bank' ? '<span style="font-size:9px;color:#5dade2;letter-spacing:.5px;font-weight:600">BANK</span>'
+      : ch.category==='sba' ? '<span style="font-size:9px;color:#a569bd;letter-spacing:.5px;font-weight:600">SBA</span>'
+      : ch.category==='specialty' ? '<span style="font-size:9px;color:#f39c12;letter-spacing:.5px;font-weight:600">SPECIALTY</span>'
+      : '<span style="font-size:9px;color:var(--muted);letter-spacing:.5px;font-weight:600">ALT</span>';
+    const tagLabel = ch.tag ? `<span style="font-size:9px;color:var(--muted);margin-left:4px">${ch.tag}</span>` : '';
+    const noteLabel = ch.note ? `<div style="font-size:10px;color:var(--muted);margin-top:2px">${ch.note}</div>` : '';
     bbody.innerHTML += `<tr>
-      <td class="channel">${ch.name}</td>
+      <td class="channel">${ch.name}<div>${catLabel}${tagLabel}</div>${noteLabel}</td>
       <td>${fmt$(maxAmt)}</td>
       <td style="font-size:11px">${ch.term}</td>
-      <td style="font-size:11px">${(ch.rate[0]*100).toFixed(0)}-${(ch.rate[1]*100).toFixed(0)}%</td>
+      <td style="font-size:11px">${(ch.rate[0]*100).toFixed(1)}-${(ch.rate[1]*100).toFixed(1)}%</td>
       <td><span class="pill ${v}">${v.toUpperCase()}</span></td></tr>`;
-    // Score: prefer cheapest product that passes (green) and covers enough of request
-    const coverage = Math.min(1, maxAmt/request);
+    // Scoring: private at $2M+ EBITDA dominates; alt penalized heavily
+    const coverage = Math.min(1, maxAmt/Math.max(request,1));
     const avgRate = (ch.rate[0]+ch.rate[1])/2;
-    const score = v==='green' ? (coverage*2 - avgRate*3) : v==='yellow' ? (coverage - avgRate*3) : -99;
+    const categoryBonus = ch.category==='private' ? 0.6 : ch.category==='bank' ? 0.4
+      : ch.category==='specialty' ? 0.2 : ch.category==='sba' ? (ebitda<2_000_000?0.35:-0.1) : -0.4;
+    // Scale-appropriate bonus: reward products targeting this deal's EBITDA band
+    const bandBonus = ch.tag && ((scale==='UMM' && /UMM/.test(ch.tag)) ||
+      (scale==='CORE' && /CORE/.test(ch.tag)) ||
+      (scale==='LMM' && /LMM/.test(ch.tag)) ||
+      (scale==='LMM-' && /LMM/.test(ch.tag))) ? 0.3 : 0;
+    const score = v==='green' ? (coverage*2 - avgRate*2.5 + categoryBonus + bandBonus)
+      : v==='yellow' ? (coverage - avgRate*2.5 + categoryBonus + bandBonus) : -99;
     if(score>bestScore && maxAmt>0){ bestScore = score; bestProduct = {...ch, maxAmt}; }
   });
 
-  // Capital stack — layer cheapest available products to fill request
-  renderBizStack({request, ar, inv, deposits, ebitda, sde, ebitdaFlag:ebitda>0, mcaPos, fico, tib, derog, equipCost:bnum('b-equipCost')+bnum('b-equipSoft'), ft:$('b-finType').value});
+  // Capital stack — purpose-of-capital aware
+  renderBizStack({request, ar, inv, deposits, ebitda, sde, ebitdaFlag:ebitda>0, mcaPos, fico, tib, derog,
+    equipCost:bnum('b-equipCost')+bnum('b-equipSoft'), ft:$('b-finType').value,
+    totLev, srLev, intCov, ev, use, sponsor, scale, exSrDebt, exSubDebt, recurring});
 
-  // Overall verdict
+  // ===== INSTITUTIONAL VERDICT (10 middle-market benchmarks) =====
   const benchmarks = [
-    dscr>=1.20, fccr>=1.15, leverage<=4, growth>=-0.05,
-    ebitdaMargin>=0.08, reqToRev<=0.40, liqToReq>=0.10,
-    fico>=660, nsf<=2, mcaPos<=1
+    totLev <= 5.5,           // total leverage
+    srLev <= 4.5,            // senior leverage
+    intCov >= 2.0,           // interest coverage
+    fccr >= 1.15,            // fixed charge coverage
+    ebitdaMargin >= 0.08,    // EBITDA margin
+    cagr >= -0.05,           // revenue stability
+    ltvEv <= 0.65 || ev===0, // LTV on EV (if provided)
+    concCust <= 0.30 || concCust===0, // customer concentration
+    liqToReq >= 0.10 || liq===0,      // sponsor skin
+    tib >= 3 && !derog && ebitda>=1_000_000 // institutional threshold
   ];
   const passCount = benchmarks.filter(x=>x).length;
   const failCount = 10 - passCount;
   const vEl = $('b-verdict'); vEl.classList.remove('green','yellow','red');
   if(request === 0 || revTTM === 0){
     vEl.classList.add('yellow'); vEl.firstChild.textContent = 'AWAITING DATA';
-    $('b-verdictSub').textContent = 'Enter Request amount and TTM Revenue to underwrite';
+    $('b-verdictSub').textContent = 'Enter Request, TTM Revenue, and EBITDA to underwrite';
+  } else if(ebitda < 500_000 && request >= 1_000_000){
+    vEl.classList.add('red'); vEl.firstChild.textContent = 'RED — BELOW INSTITUTIONAL FLOOR';
+    $('b-verdictSub').textContent = `EBITDA too thin for $${(request/1e6).toFixed(1)}M request · SBA/alt only`;
   } else if(failCount <= 1){
-    vEl.classList.add('green'); vEl.firstChild.textContent = 'GREEN LIGHT';
-    $('b-verdictSub').textContent = `${passCount}/10 benchmarks pass${bestProduct?' · Best fit: '+bestProduct.name:''}`;
+    vEl.classList.add('green'); vEl.firstChild.textContent = 'GREEN — INSTITUTIONAL QUALITY';
+    $('b-verdictSub').textContent = `${passCount}/10 benchmarks pass${bestProduct?' · Lead: '+bestProduct.name:''}`;
   } else if(failCount <= 3){
-    vEl.classList.add('yellow'); vEl.firstChild.textContent = 'YELLOW — NEEDS STRUCTURE';
-    $('b-verdictSub').textContent = `${passCount}/10 pass · May need alternative/stacked product or seasoning`;
+    vEl.classList.add('yellow'); vEl.firstChild.textContent = 'YELLOW — STRUCTURED / SECOND-TIER';
+    $('b-verdictSub').textContent = `${passCount}/10 pass · Layer mezz or second lien, or wait for seasoning`;
   } else {
-    vEl.classList.add('red'); vEl.firstChild.textContent = 'RED — LIKELY DECLINE';
-    $('b-verdictSub').textContent = `Only ${passCount}/10 pass · Major credit/cashflow/bank issues`;
+    vEl.classList.add('red'); vEl.firstChild.textContent = 'RED — BELOW INSTITUTIONAL STANDARDS';
+    $('b-verdictSub').textContent = `Only ${passCount}/10 pass · Alternative / non-institutional capital only`;
   }
 
   // Risk flags
-  renderBizFlags({mcaPos, nsf, ebitda, growth, tib, fico, derog, leverage, mcaAnnual, ebitdaYr:ebitda});
+  renderBizFlags({mcaPos, nsf, ebitda, growth:cagr, tib, fico, derog, leverage:totLev, srLev, intCov,
+    mcaAnnual, ebitdaYr:ebitda, concCust, ebitdaMargin, qoe, ebitdaPY});
 }
 
-function renderBizSpecific({ft, deposits, adb, mcaPos, ar, inv, request, sde}){
+function renderBizSpecific({ft, deposits, adb, mcaPos, ar, inv, request, sde, ev, ebitda, recurring, ebitdaPY, qoe}){
   const el = $('b-specificMetrics'); el.innerHTML = '';
   const push = (lab, val, status) => {
     const color = status==='red'?'var(--red)':status==='yellow'?'var(--yellow)':status==='green'?'var(--green)':'var(--ink)';
     el.innerHTML += `<div style="padding:8px 10px;background:#0b131f;border:1px solid var(--border);border-radius:5px"><div style="color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px">${lab}</div><div style="font-weight:700;font-size:15px;margin-top:2px;color:${color}">${val}</div></div>`;
   };
-  push('Request / Avg Deposits', deposits ? fmtPct(request/deposits) : '—',
-    deposits && request/deposits<=1 ? 'green' : deposits && request/deposits<=2 ? 'yellow' : 'red');
-  push('ADB / Request', adb && request ? fmtPct(adb/request) : '—',
-    adb && request && adb/request>=0.10 ? 'green' : 'yellow');
-  push('MCA Stack Position', mcaPos===0?'Clean':mcaPos+' position(s)',
-    mcaPos===0?'green':mcaPos===1?'yellow':'red');
-  push('AR Borrowing Base (85%)', ar ? fmt$(ar*0.85) : '—');
-  push('Inventory Base (50%)', inv ? fmt$(inv*0.50) : '—');
+  // Institutional-first: EV multiple, EBITDA growth, QoE status, recurring rev
+  const evMult = ev && ebitda ? ev/ebitda : 0;
+  push('EV / EBITDA Multiple', evMult ? fmtX(evMult) : '—',
+    evMult===0 ? 'neutral' : evMult<=8 ? 'green' : evMult<=12 ? 'yellow' : 'red');
+  const ebitdaGrowth = ebitdaPY>0 ? (ebitda-ebitdaPY)/ebitdaPY : 0;
+  push('EBITDA Growth YoY', ebitdaPY ? fmtPct(ebitdaGrowth) : '—',
+    ebitdaPY===0 ? 'neutral' : ebitdaGrowth>=0.05 ? 'green' : ebitdaGrowth>=-0.05 ? 'yellow' : 'red');
+  push('QoE Status', qoe, qoe.startsWith('Yes') ? 'green' : qoe==='In process' ? 'yellow' : 'red');
+  push('Recurring Revenue %', recurring ? fmtPct(recurring) : '—',
+    recurring>=0.60 ? 'green' : recurring>=0.30 ? 'yellow' : 'neutral');
+  push('ABL Borrowing Base (85% AR + 55% Inv)', (ar||inv) ? fmt$(ar*0.85 + inv*0.55) : '—', 'neutral');
+  push('Max Cash-Flow Senior (4.5x EBITDA)', ebitda ? fmt$(ebitda*4.5) : '—', 'neutral');
   if(/Equipment|Sale/.test(ft)){
     const cost = bnum('b-equipCost') + bnum('b-equipSoft');
     const fmv = bnum('b-equipFMV') || cost*0.85;
@@ -1114,60 +1333,272 @@ function renderBizSpecific({ft, deposits, adb, mcaPos, ar, inv, request, sde}){
       cost && request/cost<=0.85 ? 'green' : 'yellow');
     push('LTV on FMV', fmv ? fmtPct(request/fmv) : '—',
       fmv && request/fmv<=0.90 ? 'green' : 'yellow');
-  } else {
-    push('SDE / Request', sde && request ? fmtX(sde/request) : '—',
-      sde && request && sde/request>=0.30 ? 'green' : 'yellow');
+  }
+  // MCA / alt context only if flagged
+  if(mcaPos>0){
+    push('MCA Stack Position', mcaPos+' position(s)', mcaPos===1?'yellow':'red');
   }
 }
 
-function renderBizStack({request, ar, inv, deposits, ebitda, sde, ebitdaFlag, mcaPos, fico, tib, derog, equipCost, ft}){
-  // Layer selection logic: prioritize cheapest + qualifying
+// ============================================================
+// renderBizStack — PURPOSE-OF-CAPITAL AWARE for $1M-$100M deals
+// ============================================================
+function renderBizStack({request, ar, inv, deposits, ebitda, sde, ebitdaFlag, mcaPos, fico, tib, derog,
+                         equipCost, ft, totLev, srLev, intCov, ev, use, sponsor, scale, exSrDebt, exSubDebt, recurring}){
   const layers = [];
 
-  // Equipment deal: primary = equipment loan up to 100% of cost
-  if(equipCost>0 && /Equipment|Sale/.test(ft)){
-    const eqLoan = Math.min(equipCost, request);
-    layers.push({n:'Equipment Loan', v:eqLoan, r:0.095, c:'senior'});
-    const rem = Math.max(0, request - eqLoan);
-    if(rem>0) layers.push({n:'Working Capital (Term)', v:rem, r:0.11, c:'mezz'});
+  // Qualification gates
+  const institutional = tib>=3 && !derog && mcaPos<=1 && ebitda>=2_000_000;
+  const coreMM = institutional && ebitda>=5_000_000 && srLev<=5 && intCov>=1.8;
+  const upperMM = institutional && ebitda>=15_000_000;
+  const bankable = fico>=700 && tib>=5 && !derog && mcaPos===0 && ebitda>=1_500_000 && srLev<=3.5;
+  const bankClub = bankable && ebitda>=7_500_000 && request>=15_000_000;
+  const sbaQual = fico>=680 && tib>=2 && !derog && mcaPos===0 && ebitda>=250_000 && request<=5_000_000;
+  const peBacked = sponsor==='pe' || sponsor==='indep';
+
+  // Blended pricing signal (PE sponsors get ~25-50bp tighter)
+  const pxBps = peBacked ? -0.005 : 0;
+  const add = (n,v,r,c,note) => { if(v>0) layers.push({n,v,r:Math.max(0,r+pxBps),c,note:note||''}); };
+
+  // ======================================================================
+  // ROUTE BY PURPOSE OF CAPITAL
+  // ======================================================================
+
+  // --- EQUIPMENT PURCHASE (hard asset) ---
+  if(use==='Equipment Purchase' || /Equipment|Sale-Leaseback/.test(ft)){
+    const cost = equipCost > 0 ? equipCost : request;
+    const eqLoan = Math.min(cost * 0.90, request);
+    add('Equipment Loan (Institutional)', eqLoan, 0.085, 'senior', '85-95% advance on invoice');
+    const rem = request - eqLoan;
+    if(rem>0 && coreMM){
+      add('Private Credit Working Capital', rem, 0.11, 'mezz', 'Incremental term loan from same PC fund');
+    } else if(rem>0 && bankable){
+      add('Bank ABL Revolver', rem, 0.08, 'mezz', 'Cheapest working-capital layer');
+    } else if(rem>0){
+      add('Sponsor Equity', rem, 0, 'equity');
+    }
   }
-  // Qualified for SBA
-  else if(fico>=680 && tib>=2 && !derog && mcaPos===0 && ebitdaFlag){
-    const sba = Math.min(5_000_000, request);
-    layers.push({n:'SBA 7(a) Term Loan', v:sba, r:0.11, c:'senior'});
-    const rem = request - sba;
-    if(rem>0) layers.push({n:'Bank LOC Supplement', v:rem, r:0.10, c:'mezz'});
+  // --- LBO / PLATFORM ACQUISITION ---
+  else if(use==='LBO / Platform Acquisition' || use==='Add-on / M&A Rollup'){
+    if(upperMM){
+      const srStretch = Math.min(ebitda * 4.25, request * 0.70);
+      add('First Lien / Unitranche (Upper MM)', srStretch, 0.105, 'senior', 'Syndicated PC; SOFR+550-650');
+      const gap1 = request - srStretch;
+      const secondLien = Math.min(ebitda * 1.25, gap1);
+      if(secondLien>0) add('Second Lien Term Loan', secondLien, 0.135, 'mezz', '2L at ~200bp over 1L');
+      const gap2 = gap1 - secondLien;
+      if(gap2>0) add('Sponsor Equity / Rollover', gap2, 0, 'equity', 'Typical 35-45% equity check');
+    } else if(coreMM){
+      const uni = Math.min(ebitda * 4.5, request * 0.65);
+      add('Unitranche — Core MM', uni, 0.11, 'senior', 'Churchill/Antares/Golub/Monroe');
+      const gap1 = request - uni;
+      const mezz = Math.min(ebitda * 1.25, gap1);
+      if(mezz > 500_000) add('Mezzanine Debt', mezz, 0.13, 'mezz', 'Cash + PIK / warrants');
+      const gap2 = gap1 - Math.max(0,mezz);
+      const sellerNote = Math.min(gap2 * 0.3, ebitda * 0.75);
+      if(sellerNote > 0) add('Seller Note (subordinated)', sellerNote, 0.07, 'seller', 'Bridges equity gap');
+      const gap3 = gap2 - Math.max(0,sellerNote);
+      if(gap3>0) add('Sponsor Equity / Rollover', gap3, 0, 'equity');
+    } else if(institutional){
+      const uni = Math.min(ebitda * 4.5, request * 0.60);
+      add('Unitranche — Lower MM', uni, 0.12, 'senior', 'Main Street / Twin Brook / BDC');
+      const gap1 = request - uni;
+      const sellerNote = Math.min(gap1 * 0.35, ebitda * 1.0);
+      if(sellerNote>0) add('Seller Note (subordinated)', sellerNote, 0.07, 'seller');
+      const gap2 = gap1 - Math.max(0,sellerNote);
+      if(gap2>0) add('Sponsor Equity', gap2, 0, 'equity');
+    } else if(sbaQual){
+      const sba = Math.min(5_000_000, request * 0.75);
+      add('SBA 7(a) — Acquisition', sba, 0.105, 'senior', 'Personal guarantee + full collateral');
+      const gap1 = request - sba;
+      const sellerNote = Math.min(gap1 * 0.5, ebitda * 0.75);
+      if(sellerNote>0) add('Seller Note (5-yr)', sellerNote, 0.06, 'seller', 'Often required by SBA');
+      const gap2 = gap1 - Math.max(0,sellerNote);
+      if(gap2>0) add('Sponsor Equity', gap2, 0, 'equity');
+    } else {
+      add('Requires Buyer Equity Injection', request, 0, 'equity', 'Cash flow / credit below institutional floor');
+    }
   }
-  // Bank-qualifying
-  else if(fico>=700 && tib>=3 && mcaPos===0 && ebitdaFlag){
-    const term = Math.min(request*0.7, 10_000_000);
-    const loc = request - term;
-    layers.push({n:'Bank Term Loan', v:term, r:0.085, c:'senior'});
-    if(loc>0) layers.push({n:'Bank LOC', v:loc, r:0.095, c:'mezz'});
+  // --- DIVIDEND RECAP (leverage up for distribution) ---
+  else if(use==='Dividend Recapitalization'){
+    if(coreMM || upperMM){
+      const uni = Math.min(ebitda * 4.5, request * 0.75);
+      add('Senior Stretch / Unitranche', uni, 0.105, 'senior', 'Refi existing + new money');
+      const gap = request - uni;
+      const holdco = Math.min(ebitda * 1.5, gap);
+      if(holdco>0) add('Holdco / PIK Notes', holdco, 0.135, 'mezz', 'Accrues to 6-7x total leverage');
+      const gap2 = gap - Math.max(0, holdco);
+      if(gap2>0) add('Sponsor Co-Invest', gap2, 0, 'equity');
+    } else {
+      add('Dividend recap typically requires $5M+ EBITDA', request, 0, 'equity',
+        'Alternative: refinance with modest cash-out');
+    }
   }
-  // Asset-based fallback
-  else if(ar>0 || inv>0){
-    const ablBase = ar*0.85 + inv*0.50;
-    const abl = Math.min(ablBase, request);
-    layers.push({n:'ABL (AR/Inv Line)', v:abl, r:0.11, c:'senior'});
-    const rem = request - abl;
-    if(rem>0 && deposits>0){
-      const rbf = Math.min(deposits, rem);
-      layers.push({n:'Revenue-Based Financing', v:rbf, r:0.35, c:'pref'});
-      const rem2 = rem - rbf;
-      if(rem2>0) layers.push({n:'Owner Equity Gap', v:rem2, r:0, c:'equity'});
-    } else if(rem>0) layers.push({n:'Owner Equity Gap', v:rem, r:0, c:'equity'});
+  // --- PARTNER / SHAREHOLDER BUYOUT ---
+  else if(use==='Partner / Shareholder Buyout' || use==='ESOP Transaction'){
+    if(coreMM){
+      const senior = Math.min(ebitda * 4.0, request * 0.70);
+      add('Senior Stretch TL', senior, 0.10, 'senior');
+      const gap1 = request - senior;
+      const mezz = Math.min(ebitda * 1.25, gap1 * 0.6);
+      if(mezz>0) add('Mezzanine Debt', mezz, 0.13, 'mezz');
+      const gap2 = gap1 - Math.max(0, mezz);
+      const seller = Math.min(gap2, ebitda * 1.0);
+      if(seller>0) add('Seller Note (subordinated)', seller, 0.07, 'seller');
+      const gap3 = gap2 - Math.max(0, seller);
+      if(gap3>0) add('Sponsor Equity', gap3, 0, 'equity');
+    } else if(sbaQual){
+      const sba = Math.min(5_000_000, request * 0.75);
+      add('SBA 7(a) — Buyout', sba, 0.105, 'senior');
+      const gap = request - sba;
+      if(gap>0) add('Seller Note (5-yr standby)', gap * 0.7, 0.06, 'seller');
+      const rem = gap - gap*0.7;
+      if(rem>0) add('Sponsor Equity', rem, 0, 'equity');
+    } else {
+      add('Needs seller financing or sponsor equity', request, 0, 'equity');
+    }
   }
-  // Sub-bankable / MCA territory
-  else if(deposits>0){
-    const rbf = Math.min(deposits, request);
-    layers.push({n:'Revenue-Based Financing', v:rbf*0.6, r:0.35, c:'senior'});
-    const remaining = request - rbf*0.6;
-    if(remaining>0) layers.push({n:'MCA (short-term)', v:remaining, r:0.55, c:'pref'});
+  // --- REFINANCE / DEBT CONSOLIDATION ---
+  else if(use==='Refinance / Debt Consolidation'){
+    if(coreMM || upperMM){
+      const uni = Math.min(ebitda * 5.0, request);
+      add('Unitranche Refi', uni, 0.105, 'senior', 'Consolidate all tranches into single facility');
+      const gap = request - uni;
+      if(gap>0 && ebitda>=5_000_000) add('Mezzanine Top-Up', Math.min(ebitda*1, gap), 0.13, 'mezz');
+      const rem = gap - Math.min(ebitda*1, gap);
+      if(rem>0) add('Sponsor Equity', rem, 0, 'equity');
+    } else if(institutional){
+      const uni = Math.min(ebitda * 4.5, request);
+      add('Private Credit Term Loan — Refi', uni, 0.12, 'senior');
+      const gap = request - uni;
+      if(gap>0) add('Sponsor Equity', gap, 0, 'equity');
+    } else if(bankable){
+      const term = Math.min(request, ebitda*3.5);
+      add('Bank Term Loan (Refi)', term, 0.085, 'senior');
+      const gap = request - term;
+      if(gap>0) add('Mezz / Equity Gap', gap, 0.12, 'mezz');
+    } else {
+      add('Refi needs positive cash flow + $1M+ EBITDA', request, 0, 'equity');
+    }
   }
-  // Nothing qualifies
+  // --- GROWTH CAPEX / EXPANSION ---
+  else if(use==='Growth Capex / Expansion'){
+    if(bankClub){
+      const club = Math.min(ebitda * 3.5, request * 0.75);
+      add('Bank Club / Stretch TL', club, 0.085, 'senior', 'Wells/JPM/BofA-led; cheapest pricing');
+      const gap = request - club;
+      if(gap>0) add('Bank ABL Revolver', gap, 0.075, 'mezz');
+    } else if(coreMM){
+      const uni = Math.min(ebitda * 4.0, request * 0.70);
+      add('Unitranche — Growth', uni, 0.105, 'senior');
+      const gap = request - uni;
+      if(gap>0 && recurring>=0.4){
+        add('Recurring Revenue Loan (top-up)', Math.min(gap, ebitda*1.5), 0.115, 'mezz');
+      } else if(gap>0){
+        add('Mezzanine / Growth Debt', gap, 0.125, 'mezz');
+      }
+    } else if(institutional){
+      const term = Math.min(ebitda * 4.0, request * 0.6);
+      add('Private Credit Term Loan', term, 0.115, 'senior');
+      const gap = request - term;
+      const abl = Math.min(ar*0.85 + inv*0.55, gap);
+      if(abl > 500_000) add('ABL Revolver', abl, 0.09, 'mezz');
+      const rem = gap - Math.max(0,abl);
+      if(rem>0) add('Sponsor Equity / Growth Capital', rem, 0, 'equity');
+    } else if(sbaQual){
+      add('SBA 7(a) Expansion', Math.min(5_000_000, request), 0.105, 'senior');
+      const rem = request - Math.min(5_000_000, request);
+      if(rem>0) add('Sponsor Equity', rem, 0, 'equity');
+    } else {
+      add('Growth capex — needs proven EBITDA', request, 0, 'equity');
+    }
+  }
+  // --- WORKING CAPITAL / REVOLVER ---
+  else if(use==='Working Capital / Revolver' || use==='Inventory / AR Bridge'){
+    const baseAr = ar * 0.85, baseInv = inv * 0.55;
+    const ablBase = baseAr + baseInv;
+    if(bankable && ablBase > 1_000_000){
+      const bankAbl = Math.min(ablBase, request);
+      add('Bank ABL Revolver', bankAbl, 0.075, 'senior', 'Cheapest working-cap option');
+      const gap = request - bankAbl;
+      if(gap>0 && ebitda>=1_500_000) add('Bank Term Loan (supplemental)', gap, 0.085, 'mezz');
+    } else if(institutional && ablBase > 500_000){
+      const pcAbl = Math.min(ablBase, request);
+      add('Private ABL Revolver (BDC)', pcAbl, 0.095, 'senior');
+      const gap = request - pcAbl;
+      if(gap>0 && ebitda>=2_000_000) add('Private Credit Term Loan', gap, 0.115, 'mezz');
+    } else if(ar>0 || inv>0){
+      const abl = Math.min(ablBase, request);
+      add('ABL / Asset-Based Term', abl, 0.105, 'senior');
+      const gap = request - abl;
+      if(gap>0 && ar>0) add('Invoice Factoring (backup)', Math.min(ar*0.90, gap), 0.16, 'pref',
+        'Last-resort AR monetization');
+    } else {
+      add('Needs AR/Inventory collateral or EBITDA', request, 0, 'equity');
+    }
+  }
+  // --- SAAS / RECURRING REVENUE (startup or growth stage) ---
+  else if(recurring>=0.60 && ebitda<2_000_000 && request>=2_000_000){
+    const arr = bnum('b-revTTM') * recurring; // approx ARR from recurring rev %
+    const rrl = Math.min(arr * 0.5, 50_000_000, request);
+    add('Recurring Revenue / ARR Loan', rrl, 0.115, 'senior', 'Sized on ARR (3-7x MRR)');
+    const gap = request - rrl;
+    if(gap>0) add('Growth / Venture Debt', gap, 0.13, 'mezz');
+  }
+  // --- DIP / SPECIAL SITUATIONS ---
+  else if(use==='DIP / Special Situations'){
+    add('DIP / Rescue Financing', request, 0.15, 'senior', 'Priming lien; short-term; specialty lenders');
+  }
+  // --- STARTUP / EARLY STAGE ---
+  else if(use==='Startup / Early Stage'){
+    if(sbaQual){
+      add('SBA 7(a) Startup', Math.min(5_000_000, request * 0.80), 0.11, 'senior');
+      const rem = request - Math.min(5_000_000, request * 0.80);
+      if(rem>0) add('Founder Equity', rem, 0, 'equity');
+    } else if(recurring>=0.40){
+      add('Growth / Venture Debt', Math.min(request*0.5, 10_000_000), 0.13, 'senior');
+      add('Founder / Investor Equity', request*0.5, 0, 'equity');
+    } else {
+      add('Startup — equity-heavy or SBA route', request, 0, 'equity');
+    }
+  }
+  // --- DEFAULT FALLBACK ---
   else {
-    layers.push({n:'Insufficient data / Decline', v:request, r:0, c:'equity'});
+    if(upperMM){
+      const uni = Math.min(ebitda * 4.5, request);
+      add('Unitranche — Upper MM', uni, 0.10, 'senior');
+      const gap = request - uni;
+      if(gap>0) add('Sponsor Equity', gap, 0, 'equity');
+    } else if(coreMM){
+      const uni = Math.min(ebitda * 4.5, request);
+      add('Unitranche — Core MM', uni, 0.11, 'senior');
+      const gap = request - uni;
+      if(gap>0) add('Sponsor Equity', gap, 0, 'equity');
+    } else if(institutional){
+      const term = Math.min(ebitda * 4.0, request);
+      add('Private Credit Term Loan', term, 0.12, 'senior');
+      const gap = request - term;
+      if(gap>0) add('Sponsor Equity', gap, 0, 'equity');
+    } else if(bankable){
+      add('Bank Term Loan', Math.min(ebitda*3.5, request), 0.085, 'senior');
+      const gap = request - Math.min(ebitda*3.5, request);
+      if(gap>0) add('Bank LOC', gap, 0.095, 'mezz');
+    } else if(sbaQual){
+      add('SBA 7(a)', Math.min(5_000_000, request), 0.105, 'senior');
+    } else if(ar>0 || inv>0){
+      const abl = Math.min(ar*0.85 + inv*0.55, request);
+      add('ABL (Private)', abl, 0.105, 'senior');
+      const gap = request - abl;
+      if(gap>0) add('Sponsor Equity', gap, 0, 'equity');
+    } else if(deposits>0){
+      // LAST RESORT — clearly labeled
+      const rbf = Math.min(deposits*8, request*0.5);
+      add('Revenue-Based Financing (last resort)', rbf, 0.24, 'pref');
+      const rem = request - rbf;
+      if(rem>0) add('MCA (last resort — refi ASAP)', rem, 0.55, 'pref');
+    } else {
+      add('Insufficient data — need EBITDA / AR / Collateral', request, 0, 'equity');
+    }
   }
 
   const total = layers.reduce((s,l)=>s+l.v, 0);
@@ -1197,18 +1628,27 @@ function renderBizStack({request, ar, inv, deposits, ebitda, sde, ebitdaFlag, mc
 function renderBizFlags(d){
   const el = $('b-flags'); el.innerHTML = '';
   const flags = [];
-  if(d.mcaPos >= 2) flags.push('Stacked MCAs (position 2+) — most bank / SBA lenders will decline until cleaned up.');
-  if(d.mcaPos === 1) flags.push('1st-position MCA — SBA requires payoff at close; Bank LOC likely declined.');
-  if(d.nsf >= 3) flags.push('3+ NSFs in last 3 months — bank and SBA will flag liquidity management.');
-  if(d.ebitda <= 0) flags.push('Negative or zero EBITDA — rules out SBA, Bank Term, and most equipment lenders.');
-  if(d.growth < -0.15) flags.push('Revenue decline >15% YoY — significant trend risk, will require narrative.');
-  if(d.tib < 2) flags.push('Time in business <2 years — knocks out SBA 7(a), most bank product; ABL/Factoring/MCA only.');
-  if(d.fico < 640) flags.push('FICO below 640 — limits to alternative lenders; will need compensating factors.');
-  if(d.derog) flags.push('Recent bankruptcy / tax lien — SBA requires 7 years seasoning; bank will likely decline.');
-  if(d.leverage > 5) flags.push('Debt-to-EBITDA >5x — over-levered; layer more equity or reduce request.');
-  if(d.mcaAnnual > d.ebitdaYr && d.mcaAnnual > 0) flags.push('Current MCA annual pay exceeds EBITDA — unsustainable cash flow.');
+  // ===== INSTITUTIONAL RED FLAGS =====
+  if(d.ebitda > 0 && d.ebitda < 2_000_000) flags.push('EBITDA below $2M institutional floor — private credit funds will pass; route to SBA / bank / specialty.');
+  if(d.ebitda <= 0) flags.push('Negative or zero EBITDA — rules out cash-flow lending; ABL / ARR / equity only.');
+  if(d.leverage > 6) flags.push('Pro-forma total leverage >6x — above covenant max for most unitranche/1L-2L; reduce request or add equity.');
+  if(d.srLev > 5) flags.push('Pro-forma senior leverage >5x — above most first-lien lenders\' appetite.');
+  if(d.intCov > 0 && d.intCov < 1.5) flags.push('Interest coverage <1.5x — borderline distressed; lenders will require spring-on covenants or decline.');
+  if(d.concCust >= 0.30) flags.push(`Customer concentration ${(d.concCust*100).toFixed(0)}% — top-customer risk will force concentration reserves or decline.`);
+  if(d.ebitdaMargin > 0 && d.ebitdaMargin < 0.05) flags.push('EBITDA margin <5% — thin cushion; lenders want ≥8-10% for middle market.');
+  if(d.ebitdaPY > 0 && d.ebitda < d.ebitdaPY * 0.9) flags.push(`EBITDA down ${(((d.ebitdaPY-d.ebitda)/d.ebitdaPY)*100).toFixed(0)}% YoY — declining cash flow flagged at IC; QoE mandatory.`);
+  if(d.qoe === 'No' && d.ebitda >= 3_000_000) flags.push('No QoE completed — required for $3M+ EBITDA deals with institutional PC; plan for 6-8 week diligence.');
+  if(d.growth < -0.15) flags.push('Revenue decline >15% — narrative + QoE required; may push pricing +100bp.');
+  // ===== DISQUALIFIERS / SUB-BANKABLE =====
+  if(d.tib < 2) flags.push('Time in business <2 years — rules out SBA, bank, most PC; growth/venture debt or equity only.');
+  if(d.fico < 640) flags.push('FICO <640 — limits to alt-lending; institutional PC funds typically don\'t score by FICO but banks/SBA will.');
+  if(d.derog) flags.push('Recent BK / tax lien — 7yr seasoning for SBA; PC will require explanation + reserves.');
+  if(d.mcaPos >= 2) flags.push('Stacked MCAs (2+) — institutional capital blocked until cleaned up. Refi-into-PC is the exit.');
+  if(d.mcaPos === 1) flags.push('1st-position MCA — must be paid off at close for bank / SBA / PC senior.');
+  if(d.mcaAnnual > d.ebitdaYr && d.mcaAnnual > 0) flags.push('MCA annual payments exceed EBITDA — unsustainable; urgent refi.');
+  if(d.nsf >= 3) flags.push('3+ NSFs in last 3 months — bank-health flag for any institutional lender.');
   if(flags.length === 0){
-    el.innerHTML = '<div class="flag ok" style="display:block">No red flags detected.</div>';
+    el.innerHTML = '<div class="flag ok" style="display:block">No institutional red flags detected.</div>';
   } else {
     flags.forEach(f => el.innerHTML += `<div class="flag">${f}</div>`);
   }
