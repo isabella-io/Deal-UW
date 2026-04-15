@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Offer Oven</title>
+<style>
+  :root{
+    --bg:#0f1720; --panel:#141f2e; --panel2:#1a2636; --border:#24324a;
+    --ink:#e7eef7; --muted:#8aa0bd; --brand:#3a9ad9; --brand2:#1f74b0;
+    --green:#2ecc71; --yellow:#f1c40f; --red:#e74c3c; --orange:#e67e22;
+    --accent:#72d3fe;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:14px;line-height:1.45}
+  header{background:linear-gradient(90deg,#0b2744 0%,#163a60 100%);
+    padding:18px 28px;border-bottom:1px solid var(--border);
+    display:flex;justify-content:space-between;align-items:center}
+  header h1{margin:0;font-size:20px;letter-spacing:.5px}
+  header .sub{color:var(--muted);font-size:12px;margin-top:3px}
+  .badge{background:var(--brand);color:white;padding:4px 10px;border-radius:4px;
+    font-size:11px;font-weight:600;letter-spacing:.5px}
+  .layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(360px,1fr);
+    gap:18px;padding:18px 22px;max-width:1680px;margin:0 auto}
+  @media(max-width:1100px){.layout{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:8px;
+    margin-bottom:16px;overflow:hidden}
+  .card h2{margin:0;padding:12px 16px;background:var(--panel2);
+    border-bottom:1px solid var(--border);font-size:13px;letter-spacing:1.2px;
+    text-transform:uppercase;color:var(--accent);display:flex;justify-content:space-between;align-items:center}
+  .card h2 .step{background:var(--brand);color:#fff;border-radius:50%;
+    width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;margin-right:8px}
+  .card-body{padding:14px 16px}
+  .grid{display:grid;gap:12px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr 1fr}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:720px){.g3,.g4{grid-template-columns:1fr 1fr}}
+  label{display:block;font-size:11px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;font-weight:600}
+  input,select{width:100%;background:#0b131f;border:1px solid var(--border);
+    color:var(--ink);padding:8px 10px;border-radius:5px;font-size:13px;
+    font-family:inherit}
+  input:focus,select:focus{outline:none;border-color:var(--brand);
+    box-shadow:0 0 0 2px rgba(58,154,217,.2)}
+  .input-wrap{position:relative}
+  .input-wrap .unit{position:absolute;right:10px;top:9px;color:var(--muted);font-size:11px}
+
+  /* Output panel */
+  .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .metric{background:#0b131f;padding:12px;border-radius:6px;border:1px solid var(--border)}
+  .metric .name{font-size:10.5px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+  .metric .val{font-size:20px;font-weight:700;color:var(--ink)}
+  .metric.green .val{color:var(--green)}
+  .metric.yellow .val{color:var(--yellow)}
+  .metric.red .val{color:var(--red)}
+  .metric .bench{font-size:10.5px;color:var(--muted);margin-top:4px}
+
+  /* Verdict */
+  .verdict{padding:20px;border-radius:8px;text-align:center;
+    font-size:22px;font-weight:800;letter-spacing:1.5px;margin-top:8px}
+  .verdict.green{background:rgba(46,204,113,.15);color:var(--green);border:1px solid var(--green)}
+  .verdict.yellow{background:rgba(241,196,15,.15);color:var(--yellow);border:1px solid var(--yellow)}
+  .verdict.red{background:rgba(231,76,60,.15);color:var(--red);border:1px solid var(--red)}
+  .verdict .sub{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.5px;margin-top:6px}
+
+  /* Channel matrix */
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{padding:7px 8px;text-align:center;border-bottom:1px solid var(--border)}
+  th{background:#0b131f;color:var(--accent);
+    text-transform:uppercase;font-size:10.5px;letter-spacing:.6px;font-weight:600}
+  td.channel{text-align:left;font-weight:600}
+  .pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.3px}
+  .pill.green{background:var(--green);color:#0a1f12}
+  .pill.yellow{background:var(--yellow);color:#3f340c}
+  .pill.red{background:var(--red);color:#fff}
+
+  /* Capital stack bar */
+  .stack{margin-top:8px;border-radius:6px;overflow:hidden;border:1px solid var(--border);height:32px;display:flex}
+  .stack .layer{display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:600;color:#fff;padding:0 6px;overflow:hidden;white-space:nowrap}
+  .stack .senior{background:#2c6cb4}
+  .stack .mezz{background:#8e44ad}
+  .stack .pref{background:#e67e22}
+  .stack .seller{background:#16a085}
+  .stack .equity{background:#6d7b8d}
+
+  .stack-table td{text-align:right}
+  .stack-table td.lbl{text-align:left}
+  .flag{padding:6px 10px;margin-bottom:6px;border-radius:5px;font-size:12px;
+    background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.4);color:#ffb3ac}
+  .flag.ok{background:rgba(46,204,113,.1);border-color:rgba(46,204,113,.35);color:#aef4c6;display:none}
+  .hidden{display:none !important}
+
+  .section-header{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent);
+    margin:14px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px;font-weight:600}
+  .note{font-size:11px;color:var(--muted);margin-top:4px;font-style:italic}
+  .reset-btn{background:transparent;color:var(--muted);border:1px solid var(--border);padding:5px 10px;
+    border-radius:4px;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:.6px}
+  .reset-btn:hover{color:var(--ink);border-color:var(--accent)}
+
+  .blend-cost{font-size:18px;font-weight:700;color:var(--accent)}
+  input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type="number"]{-moz-appearance:textfield}
+
+  /* Top tabs */
+  .tabs{display:flex;background:#0b131f;border-bottom:1px solid var(--border);padding:0 22px;gap:2px}
+  .tab{padding:14px 22px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.5px;
+    color:var(--muted);border-bottom:3px solid transparent;text-transform:uppercase;transition:all .15s}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--accent);border-bottom-color:var(--brand);background:rgba(58,154,217,.08)}
+  .page{display:block}
+  .page.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Offer Oven</h1>
+    <div class="sub" id="headerSub">60-second intake underwriting — LTV · DSCR · Debt Yield · Channel Fit · Capital Stack</div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <span class="badge">LIVE</span>
+    <button class="reset-btn" onclick="resetAll()">Reset</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tab active" data-page="cre" onclick="switchTab('cre')">Commercial Real Estate</div>
+  <div class="tab" data-page="biz" onclick="switchTab('biz')">Business &amp; Equipment Financing</div>
+</nav>
+
+<div id="page-cre" class="page">
+<div class="layout">
+  <!-- LEFT COLUMN: INPUTS (waterfall) -->
+  <div>
+    <!-- STEP 1: Triage -->
+    <div class="card">
+      <h2><span><span class="step">1</span>Initial Triage</span><span style="font-size:10px;color:var(--muted);text-transform:none">Ask these first on every call</span></h2>
+      <div class="card-body">
+        <div class="grid g3">
+          <div>
+            <label>Deal Type</label>
+            <select id="dealType">
+              <option>Acquisition</option><option>Refinance</option>
+              <option>Cash-Out Refi</option><option>CapEx / Value-Add</option>
+              <option>Bridge-to-Perm</option><option>Construction / Development</option>
+              <option>Land</option><option>Equity Buyout</option>
+            </select>
+          </div>
+          <div>
+            <label>Owner-Occupied?</label>
+            <select id="ownerOcc">
+              <option>No (Investor)</option><option>Yes (Owner-User)</option>
+            </select>
+          </div>
+          <div>
+            <label>Asset Class</label>
+            <select id="assetClass">
+              <option>Multifamily</option><option>Retail</option><option>Office</option>
+              <option>Industrial</option><option>Mixed-Use</option>
+              <option>Hospitality</option><option>Self-Storage</option>
+              <option>Manufactured Housing</option><option>Owner-Occupied CRE</option>
+              <option>Land</option><option>Special Purpose</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
+          <div>
+            <label>Location / MSA</label>
+            <input id="location" placeholder="City, ST" />
+          </div>
+          <div>
+            <label>Property Address</label>
+            <input id="address" placeholder="Street address" />
+          </div>
+          <div>
+            <label>Target Close</label>
+            <input id="closeDate" type="date" />
+          </div>
+        </div>
+        <div class="grid g4" style="margin-top:10px">
+          <div class="input-wrap">
+            <label>Loan Request</label>
+            <input id="loan" type="number" placeholder="8000000" />
+            <span class="unit">$</span>
+          </div>
+          <div class="input-wrap">
+            <label>Purchase Price / Current Value</label>
+            <input id="price" type="number" placeholder="10000000" />
+            <span class="unit">$</span>
+          </div>
+          <div class="input-wrap">
+            <label>As-Is Appraised Value</label>
+            <input id="aiv" type="number" placeholder="10000000" />
+            <span class="unit">$</span>
+          </div>
+          <div class="input-wrap">
+            <label>Stabilized / ARV</label>
+            <input id="arv" type="number" placeholder="13000000" />
+            <span class="unit">$</span>
+          </div>
+        </div>
+        <div class="grid g4" style="margin-top:10px">
+          <div class="input-wrap">
+            <label>Stabilized NOI (annual)</label>
+            <input id="noi" type="number" placeholder="1040000" />
+            <span class="unit">$</span>
+          </div>
+          <div class="input-wrap">
+            <label>Gross Revenue / EGI</label>
+            <input id="revenue" type="number" placeholder="1560000" />
+            <span class="unit">$</span>
+          </div>
+          <div class="input-wrap">
+            <label>OpEx (annual)</label>
+            <input id="opex" type="number" placeholder="520000" />
+            <span class="unit">$</span>
+          </div>
+          <div class="input-wrap">
+            <label>Market / Going-in Cap Rate</label>
+            <input id="capRate" type="number" step="0.001" placeholder="0.065" />
+            <span class="unit">%</span>
+          </div>
+        </div>
+        <div class="grid g4" style="margin-top:10px">
+          <div class="input-wrap">
+            <label>CapEx / Rehab Budget</label>
+            <input id="capex" type="number" placeholder="1500000" />
+            <span class="unit">$</span>
+          </div>
+          <div class="input-wrap">
+            <label>Closing Costs / Reserves</label>
+            <input id="closingCosts" type="number" placeholder="200000" />
+            <span class="unit">$</span>
+          </div>
+          <div class="input-wrap">
+            <label>Requested Rate</label>
+            <input id="rate" type="number" step="0.001" value="0.075" />
+            <span class="unit">%</span>
+          </div>
+          <div class="input-wrap">
+            <label>Amort (yrs, 0=I/O)</label>
+            <input id="amort" type="number" value="30" />
+            <span class="unit">yrs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Asset-specific (waterfall reveal) -->
+    <div class="card">
+      <h2><span><span class="step">2</span>Asset-Class Metrics</span><span style="font-size:10px;color:var(--muted);text-transform:none">Fields auto-filter by asset class</span></h2>
+      <div class="card-body">
+        <!-- Multifamily / MHP -->
+        <div id="fields-mf" class="asset-fields grid g4">
+          <div><label># Units</label><input id="units" type="number" /></div>
+          <div><label>Avg In-Place Rent / Unit / Mo</label><input id="rentInPlace" type="number" /></div>
+          <div><label>Avg Market Rent / Unit / Mo</label><input id="rentMarket" type="number" /></div>
+          <div><label>Occupancy %</label><input id="mfOcc" type="number" step="0.01" value="0.92" /></div>
+        </div>
+        <!-- Retail / Office / Industrial -->
+        <div id="fields-cre" class="asset-fields grid g4 hidden">
+          <div><label>GLA (sqft)</label><input id="gla" type="number" /></div>
+          <div><label>NNN Rent / Sqft / Yr</label><input id="rentPSF" type="number" step="0.01" /></div>
+          <div><label>WALT (yrs)</label><input id="walt" type="number" step="0.1" /></div>
+          <div><label>Top 3 Tenants % NOI</label><input id="topTenant" type="number" step="0.01" value="0.4" /></div>
+        </div>
+        <!-- Hospitality -->
+        <div id="fields-hotel" class="asset-fields grid g4 hidden">
+          <div><label># Keys</label><input id="keys" type="number" /></div>
+          <div><label>ADR ($)</label><input id="adr" type="number" step="0.01" /></div>
+          <div><label>Occupancy %</label><input id="hotelOcc" type="number" step="0.01" value="0.65" /></div>
+          <div><label>PIP Budget</label><input id="pip" type="number" /></div>
+        </div>
+        <!-- Self-Storage -->
+        <div id="fields-ss" class="asset-fields grid g4 hidden">
+          <div><label>NRA Sqft</label><input id="nra" type="number" /></div>
+          <div><label>Rent / Sqft / Mo</label><input id="ssRent" type="number" step="0.01" /></div>
+          <div><label>Occupancy %</label><input id="ssOcc" type="number" step="0.01" value="0.85" /></div>
+          <div><label>Climate-Controlled %</label><input id="ssClimate" type="number" step="0.01" value="0.25" /></div>
+        </div>
+        <!-- Owner-Occupied CRE -->
+        <div id="fields-owner" class="asset-fields grid g4 hidden">
+          <div><label>Years in Business</label><input id="yib" type="number" /></div>
+          <div class="input-wrap"><label>TTM Business Revenue</label><input id="bizRev" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>TTM EBITDA / SDE</label><input id="ebitda" type="number" /><span class="unit">$</span></div>
+          <div><label>% Occupied by Business</label><input id="occByBiz" type="number" step="0.01" value="1.0" /></div>
+        </div>
+        <!-- Land / Construction / Dev -->
+        <div id="fields-land" class="asset-fields grid g4 hidden">
+          <div class="input-wrap"><label>Land Basis</label><input id="landBasis" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Hard Costs</label><input id="hardCosts" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Soft Costs + Contingency</label><input id="softCosts" type="number" /><span class="unit">$</span></div>
+          <div><label>Exit Cap Rate</label><input id="exitCap" type="number" step="0.001" value="0.065" /></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Sponsor -->
+    <div class="card">
+      <h2><span><span class="step">3</span>Sponsor / Borrower Profile</span><span style="font-size:10px;color:var(--muted);text-transform:none">Credit, capacity, experience</span></h2>
+      <div class="card-body">
+        <div class="grid g4">
+          <div><label>FICO</label><input id="fico" type="number" value="720" /></div>
+          <div class="input-wrap"><label>Post-Close Liquidity</label><input id="liq" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Net Worth</label><input id="nw" type="number" /><span class="unit">$</span></div>
+          <div><label># Similar Deals Closed</label><input id="experience" type="number" /></div>
+        </div>
+        <div class="grid g4" style="margin-top:10px">
+          <div class="input-wrap"><label>Global Cash Flow (annual)</label><input id="gcf" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Global Debt Service (ex-new)</label><input id="gds" type="number" /><span class="unit">$</span></div>
+          <div>
+            <label>Bankruptcy / FC last 7yr?</label>
+            <select id="derog"><option>No</option><option>Yes</option></select>
+          </div>
+          <div>
+            <label>Citizenship</label>
+            <select id="citizenship"><option>US Citizen</option><option>PR</option><option>Foreign National</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN: LIVE OUTPUTS -->
+  <div>
+    <!-- Verdict -->
+    <div class="card">
+      <h2><span>Deal Verdict</span></h2>
+      <div class="card-body">
+        <div id="verdict" class="verdict green">GREEN LIGHT
+          <div class="sub" id="verdictSub">Enter deal data to underwrite</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core metrics -->
+    <div class="card">
+      <h2><span>Core Metrics</span></h2>
+      <div class="card-body">
+        <div class="metric-grid">
+          <div class="metric" id="m-ltv-as"><div class="name">LTV (As-Is)</div><div class="val">–</div><div class="bench">Target ≤ 75%</div></div>
+          <div class="metric" id="m-ltv-arv"><div class="name">LTV (Stab/ARV)</div><div class="val">–</div><div class="bench">Target ≤ 70%</div></div>
+          <div class="metric" id="m-ltc"><div class="name">LTC</div><div class="val">–</div><div class="bench">Target ≤ 80%</div></div>
+          <div class="metric" id="m-dscr"><div class="name">DSCR</div><div class="val">–</div><div class="bench">Target ≥ 1.25x</div></div>
+          <div class="metric" id="m-dy"><div class="name">Debt Yield</div><div class="val">–</div><div class="bench">Target ≥ 8.0%</div></div>
+          <div class="metric" id="m-cap"><div class="name">Implied Cap</div><div class="val">–</div><div class="bench">Market-dependent</div></div>
+          <div class="metric" id="m-gdscr"><div class="name">Global DSCR</div><div class="val">–</div><div class="bench">Target ≥ 1.15x</div></div>
+          <div class="metric" id="m-liq"><div class="name">Liquidity / Loan</div><div class="val">–</div><div class="bench">Target ≥ 10%</div></div>
+          <div class="metric" id="m-nwloan"><div class="name">NW / Loan</div><div class="val">–</div><div class="bench">Target ≥ 1.0x</div></div>
+        </div>
+        <div class="section-header">Asset-Specific Quick Metrics</div>
+        <div id="assetMetrics" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:12px">
+          <!-- filled by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Channel Fit -->
+    <div class="card">
+      <h2><span>Channel Fit</span></h2>
+      <div class="card-body">
+        <table>
+          <thead><tr><th style="text-align:left">Channel</th><th>Max Senior</th><th>DSCR</th><th>DY</th><th>LTV</th><th>Verdict</th></tr></thead>
+          <tbody id="channelBody"></tbody>
+        </table>
+        <div class="note">Verdicts assume default benchmarks. Your actual lender box may vary.</div>
+      </div>
+    </div>
+
+    <!-- Capital Stack -->
+    <div class="card">
+      <h2><span>Recommended Capital Stack</span></h2>
+      <div class="card-body">
+        <div id="stackBar" class="stack"></div>
+        <table class="stack-table" style="margin-top:8px">
+          <thead><tr><th style="text-align:left">Layer</th><th>Amount</th><th>Rate</th><th>% of Stack</th></tr></thead>
+          <tbody id="stackBody"></tbody>
+          <tfoot id="stackFoot"></tfoot>
+        </table>
+        <div style="margin-top:8px;display:flex;justify-content:space-between;font-size:12px">
+          <span>Blended cost of debt/pref:</span>
+          <span class="blend-cost" id="blendCost">–</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Flags -->
+    <div class="card">
+      <h2><span>Risk Flags</span></h2>
+      <div class="card-body" id="flags"></div>
+    </div>
+  </div>
+</div>
+</div> <!-- /page-cre -->
+
+<div id="page-biz" class="page hidden">
+<div class="layout">
+  <!-- LEFT COLUMN: BIZ INPUTS -->
+  <div>
+    <!-- STEP 1 -->
+    <div class="card">
+      <h2><span><span class="step">1</span>Initial Triage</span><span style="font-size:10px;color:var(--muted);text-transform:none">Ask these first on every call</span></h2>
+      <div class="card-body">
+        <div class="grid g3">
+          <div>
+            <label>Financing Type</label>
+            <select id="b-finType">
+              <option>Private Credit Unitranche</option><option>Private Credit Term Loan</option>
+              <option>Mezzanine Debt</option><option>Cash Flow Loan (EBITDA-based)</option>
+              <option>ABL (Private / BDC)</option><option>Asset-Based Term Loan</option>
+              <option>Bank Term Loan (Stretch/Club)</option><option>Bank LOC (Revolver)</option>
+              <option>SBA 7(a)</option><option>SBA 504</option>
+              <option>Equipment Loan (Institutional)</option><option>Equipment Lease ($1 Buyout)</option>
+              <option>Equipment Lease (FMV / Operating)</option><option>Sale-Leaseback</option>
+              <option>Growth Capital / Venture Debt</option><option>Recurring Revenue Loan (SaaS)</option>
+              <option>Acquisition Financing</option><option>Partner / Shareholder Buyout</option>
+              <option>Dividend Recap</option><option>DIP / Special Situations</option>
+              <option>Inventory Financing</option><option>Invoice Factoring</option>
+              <option>Revenue-Based Financing</option><option>MCA (last resort)</option>
+            </select>
+          </div>
+          <div>
+            <label>Purpose of Capital <span style="color:var(--accent);font-size:9px">★ drives stack</span></label>
+            <select id="b-use">
+              <option>LBO / Platform Acquisition</option>
+              <option>Add-on / M&amp;A Rollup</option>
+              <option>Dividend Recapitalization</option>
+              <option>Partner / Shareholder Buyout</option>
+              <option>ESOP Transaction</option>
+              <option>Refinance / Debt Consolidation</option>
+              <option>Growth Capex / Expansion</option>
+              <option>Working Capital / Revolver</option>
+              <option>Equipment Purchase</option>
+              <option>DIP / Special Situations</option>
+              <option>Inventory / AR Bridge</option>
+              <option>Startup / Early Stage</option>
+            </select>
+          </div>
+          <div>
+            <label>Sponsor Type <span style="color:var(--accent);font-size:9px">★ pricing signal</span></label>
+            <select id="b-sponsor">
+              <option value="pe">PE-Backed (institutional)</option>
+              <option value="indep">Independent Sponsor</option>
+              <option value="family">Family Office / HNW</option>
+              <option value="founder">Founder-Led / Closely Held</option>
+              <option value="strategic">Strategic / Corporate</option>
+              <option value="search">Search Fund / Fundless</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
+          <div class="input-wrap">
+            <label>Financing Request</label>
+            <input id="b-request" type="number" placeholder="500000" />
+            <span class="unit">$</span>
+          </div>
+          <div>
+            <label>Industry / NAICS</label>
+            <input id="b-naics" placeholder="e.g. 722511 Restaurant" />
+          </div>
+          <div>
+            <label>Entity Type</label>
+            <select id="b-entity">
+              <option>LLC</option><option>S-Corp</option><option>C-Corp</option>
+              <option>Partnership</option><option>Sole Prop</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
+          <div>
+            <label>State of Operations</label>
+            <input id="b-state" placeholder="TX" />
+          </div>
+          <div>
+            <label>Time in Business (years)</label>
+            <input id="b-tib" type="number" step="0.5" placeholder="5" />
+          </div>
+          <div>
+            <label>Target Close Date</label>
+            <input id="b-close" type="date" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Business Financials -->
+    <div class="card">
+      <h2><span><span class="step">2</span>Business Financial Profile</span><span style="font-size:10px;color:var(--muted);text-transform:none">3-year trend matters for SBA and bank</span></h2>
+      <div class="card-body">
+        <div class="section-header">Revenue Trend</div>
+        <div class="grid g3">
+          <div class="input-wrap"><label>TTM Revenue</label><input id="b-revTTM" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Prior Year Revenue</label><input id="b-revPY" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>2 Years Ago Revenue</label><input id="b-revPY2" type="number" /><span class="unit">$</span></div>
+        </div>
+        <div class="section-header">Profitability (Institutional — Scrub add-backs; QoE quality matters)</div>
+        <div class="grid g3">
+          <div class="input-wrap"><label>Gross Profit (TTM)</label><input id="b-gp" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>EBITDA (TTM) — Adj.</label><input id="b-ebitda" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Prior Year EBITDA</label><input id="b-ebitdaPY" type="number" /><span class="unit">$</span></div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
+          <div class="input-wrap"><label>Maintenance Capex (TTM)</label><input id="b-capex" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Cash Taxes (TTM)</label><input id="b-taxes" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Owner Addbacks (if SDE)</label><input id="b-addback" type="number" /><span class="unit">$</span></div>
+        </div>
+        <div class="section-header">Balance Sheet, Existing Debt &amp; Coverage</div>
+        <div class="grid g3">
+          <div class="input-wrap"><label>Cash / Liquidity on BS</label><input id="b-cash" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Accounts Receivable</label><input id="b-ar" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Inventory</label><input id="b-inv" type="number" /><span class="unit">$</span></div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
+          <div class="input-wrap"><label>Existing Senior Debt</label><input id="b-exdebt" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Existing Sub / Mezz Debt</label><input id="b-exsubdebt" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Existing Annual Interest Exp.</label><input id="b-exint" type="number" /><span class="unit">$</span></div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
+          <div class="input-wrap"><label>Existing Annual Debt Service</label><input id="b-exds" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Monthly Rent / Lease</label><input id="b-rent" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Enterprise Value (purchase or implied)</label><input id="b-ev" type="number" /><span class="unit">$</span></div>
+        </div>
+        <div class="section-header">Middle-Market Signals (Private Credit &amp; Bank underwriters care about these)</div>
+        <div class="grid g3">
+          <div><label>Top Customer Concentration</label><input id="b-concCust" type="number" step="0.01" placeholder="0.15" /><span style="font-size:10px;color:var(--muted)">as decimal (e.g. 0.15 = 15%)</span></div>
+          <div><label>Top 10 Customer Concentration</label><input id="b-conc10" type="number" step="0.01" placeholder="0.50" /></div>
+          <div><label>Recurring Revenue %</label><input id="b-recurring" type="number" step="0.01" placeholder="0.40" /></div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
+          <div><label>EBITDA Quality (addback / adj EBITDA)</label><input id="b-ebitdaQual" type="number" step="0.01" placeholder="0.10" /><span style="font-size:10px;color:var(--muted)">lower = higher quality</span></div>
+          <div><label>Industry Cyclicality</label>
+            <select id="b-cyclical">
+              <option value="defensive">Defensive / Non-cyclical</option>
+              <option value="neutral">Neutral</option>
+              <option value="cyclical">Cyclical</option>
+              <option value="hyper">Hyper-cyclical (commodity/discretionary)</option>
+            </select>
+          </div>
+          <div><label>QoE Completed?</label>
+            <select id="b-qoe">
+              <option>No</option><option>In process</option><option>Yes — Big 4 / top tier</option><option>Yes — regional</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Bank Statement / MCA diligence -->
+    <div class="card">
+      <h2><span><span class="step">3</span>Alternative / Sub-Bankable Diligence</span><span style="font-size:10px;color:var(--muted);text-transform:none">Optional — only if deal drops below institutional threshold (&lt;$1M EBITDA, stacked MCA, derog credit)</span></h2>
+      <div class="card-body">
+        <div class="grid g3">
+          <div class="input-wrap"><label>Avg Monthly Deposits (3mo)</label><input id="b-deposits" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Avg Daily Balance</label><input id="b-adb" type="number" /><span class="unit">$</span></div>
+          <div><label>NSFs Last 3 Months</label><input id="b-nsf" type="number" value="0" /></div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
+          <div><label>Existing MCA Positions</label>
+            <select id="b-mcaPos">
+              <option value="0">0 (clean)</option><option value="1">1st position</option>
+              <option value="2">2 stacked</option><option value="3">3+ stacked</option>
+            </select>
+          </div>
+          <div class="input-wrap"><label>Current MCA Daily/Weekly Pay</label><input id="b-mcaPay" type="number" /><span class="unit">$</span></div>
+          <div><label>Processor (for split-pay)</label>
+            <select id="b-processor">
+              <option>N/A</option><option>Square</option><option>Stripe</option>
+              <option>Toast / Clover</option><option>ACH Only</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Equipment (conditional) -->
+    <div class="card" id="b-equipCard">
+      <h2><span><span class="step">4</span>Equipment Details</span><span style="font-size:10px;color:var(--muted);text-transform:none">Auto-shows for equipment financing types</span></h2>
+      <div class="card-body">
+        <div class="grid g3">
+          <div><label>Equipment Type</label><input id="b-equipType" placeholder="e.g. CNC machine, box truck" /></div>
+          <div><label>New or Used?</label>
+            <select id="b-equipNew"><option>New</option><option>Used</option></select>
+          </div>
+          <div><label>Year of Manufacture</label><input id="b-equipYear" type="number" placeholder="2024" /></div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
+          <div class="input-wrap"><label>Equipment Cost (invoice)</label><input id="b-equipCost" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Soft Costs (tax, freight, install)</label><input id="b-equipSoft" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Estimated FMV / OLV</label><input id="b-equipFMV" type="number" /><span class="unit">$</span></div>
+        </div>
+        <div class="grid g3" style="margin-top:10px">
+          <div><label>Useful Life (years)</label><input id="b-equipLife" type="number" placeholder="7" /></div>
+          <div><label>Essential to Operations?</label>
+            <select id="b-equipEssential"><option>Yes</option><option>No</option></select>
+          </div>
+          <div><label>Vendor / Manufacturer</label><input id="b-equipVendor" placeholder="Caterpillar, Kenworth, etc." /></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5: Sponsor / Guarantor -->
+    <div class="card">
+      <h2><span><span class="step">5</span>Sponsor / Guarantor</span><span style="font-size:10px;color:var(--muted);text-transform:none">PG required on most business financing</span></h2>
+      <div class="card-body">
+        <div class="grid g4">
+          <div><label>Personal FICO</label><input id="b-fico" type="number" value="720" /></div>
+          <div><label>Business Credit (Paydex/FICO SBSS)</label><input id="b-bizcredit" type="number" placeholder="160" /></div>
+          <div class="input-wrap"><label>Owner Net Worth</label><input id="b-nw" type="number" /><span class="unit">$</span></div>
+          <div class="input-wrap"><label>Owner Post-Close Liquidity</label><input id="b-liq" type="number" /><span class="unit">$</span></div>
+        </div>
+        <div class="grid g4" style="margin-top:10px">
+          <div><label>Majority Owner %</label><input id="b-ownership" type="number" step="0.01" value="1.0" /></div>
+          <div><label>Industry Experience (yrs)</label><input id="b-exp" type="number" /></div>
+          <div><label>Prior SBA Loan?</label>
+            <select id="b-priorSBA"><option>No</option><option>Yes - paid off</option><option>Yes - open</option></select>
+          </div>
+          <div><label>Bankruptcy/Tax Lien last 7yr?</label>
+            <select id="b-derog"><option>No</option><option>Yes</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: BIZ OUTPUTS -->
+  <div>
+    <div class="card">
+      <h2><span>Deal Verdict</span></h2>
+      <div class="card-body">
+        <div id="b-verdict" class="verdict yellow">AWAITING DATA
+          <div class="sub" id="b-verdictSub">Enter revenue, EBITDA, and FICO to underwrite</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span>Middle-Market Credit Profile</span></h2>
+      <div class="card-body">
+        <div id="b-scaleBand" style="padding:10px 12px;background:#0b131f;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="color:var(--muted);font-size:10px;letter-spacing:.8px;text-transform:uppercase">Deal Classification</div>
+            <div id="b-scaleBandVal" style="font-weight:700;font-size:17px;margin-top:2px">—</div>
+          </div>
+          <div style="text-align:right">
+            <div style="color:var(--muted);font-size:10px;letter-spacing:.8px;text-transform:uppercase">Private Credit Eligible</div>
+            <div id="b-pcEligible" style="font-weight:700;font-size:15px;margin-top:2px">—</div>
+          </div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric" id="bm-totlev"><div class="name">Pro-Forma Total Leverage</div><div class="val">–</div><div class="bench">Target ≤ 5.0x · Max 6.0x</div></div>
+          <div class="metric" id="bm-srlev"><div class="name">Pro-Forma Senior Leverage</div><div class="val">–</div><div class="bench">Target ≤ 4.0x · Max 4.5x</div></div>
+          <div class="metric" id="bm-intcov"><div class="name">Interest Coverage</div><div class="val">–</div><div class="bench">Target ≥ 2.5x · EBITDA/Int</div></div>
+          <div class="metric" id="bm-fccr"><div class="name">FCCR</div><div class="val">–</div><div class="bench">Target ≥ 1.20x</div></div>
+          <div class="metric" id="bm-margin"><div class="name">EBITDA Margin</div><div class="val">–</div><div class="bench">Target ≥ 10%</div></div>
+          <div class="metric" id="bm-cagr"><div class="name">Revenue CAGR (2yr)</div><div class="val">–</div><div class="bench">Target ≥ 0%</div></div>
+          <div class="metric" id="bm-ltvev"><div class="name">LTV on Enterprise Value</div><div class="val">–</div><div class="bench">Target ≤ 55% · Max 65%</div></div>
+          <div class="metric" id="bm-conc"><div class="name">Top Customer Conc.</div><div class="val">–</div><div class="bench">Target ≤ 15%</div></div>
+          <div class="metric" id="bm-liq"><div class="name">Sponsor Liq. / Request</div><div class="val">–</div><div class="bench">Target ≥ 10%</div></div>
+        </div>
+        <div class="section-header">Deal-Specific Metrics</div>
+        <div id="b-specificMetrics" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:12px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span>Channel / Product Fit</span></h2>
+      <div class="card-body">
+        <table>
+          <thead><tr><th style="text-align:left">Product</th><th>Max Amount</th><th>Typical Term</th><th>Rate Range</th><th>Verdict</th></tr></thead>
+          <tbody id="b-channelBody"></tbody>
+        </table>
+        <div class="note">Ranges are market benchmarks. Actual pricing varies by lender and risk adjustments.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span>Recommended Capital Stack</span></h2>
+      <div class="card-body">
+        <div id="b-stackBar" class="stack"></div>
+        <table class="stack-table" style="margin-top:8px">
+          <thead><tr><th style="text-align:left">Layer</th><th>Amount</th><th>Rate</th><th>% of Stack</th></tr></thead>
+          <tbody id="b-stackBody"></tbody>
+          <tfoot id="b-stackFoot"></tfoot>
+        </table>
+        <div style="margin-top:8px;display:flex;justify-content:space-between;font-size:12px">
+          <span>Blended annual cost:</span>
+          <span class="blend-cost" id="b-blendCost">–</span>
+        </div>
+        <div class="note" id="b-stackNote">Primary + supplemental layers sized to fill full request while minimizing blended cost.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span>Risk Flags</span></h2>
+      <div class="card-body" id="b-flags"></div>
+    </div>
+  </div>
+</div>
+</div> <!-- /page-biz -->
+
+<script>
+// ---------- Helpers ----------
+const $ = id => document.getElementById(id);
+const num = id => { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; };
+const txt = id => $(id).value;
+const fmt$ = n => n === 0 || !isFinite(n) ? '—' : '$' + n.toLocaleString('en-US', {maximumFractionDigits: 0});
+const fmtPct = n => !isFinite(n) ? '—' : (n*100).toFixed(2) + '%';
+const fmtX = n => !isFinite(n) ? '—' : n.toFixed(2) + 'x';
+
+// ---------- Asset class waterfall ----------
+const assetGroups = {
+  'Multifamily':'fields-mf','Manufactured Housing':'fields-mf',
+  'Retail':'fields-cre','Office':'fields-cre','Industrial':'fields-cre','Mixed-Use':'fields-cre','Special Purpose':'fields-cre',
+  'Hospitality':'fields-hotel',
+  'Self-Storage':'fields-ss',
+  'Owner-Occupied CRE':'fields-owner',
+  'Land':'fields-land'
+};
+
+function revealAssetFields(){
+  const cls = $('assetClass').value;
+  const show = assetGroups[cls];
+  document.querySelectorAll('.asset-fields').forEach(el => el.classList.add('hidden'));
+  if(show) $(show).classList.remove('hidden');
+  if($('ownerOcc').value === 'Yes (Owner-User)') $('fields-owner').classList.remove('hidden');
+  if(['Construction / Development','Land'].includes($('dealType').value)) $('fields-land').classList.remove('hidden');
+}
+
+// ---------- Core calc ----------
+function calcDebtService(loan, rate, amortYrs){
+  if(!loan || !rate) return 0;
+  if(amortYrs === 0) return loan * rate; // interest-only
+  const r = rate/12, n = amortYrs*12;
+  const pmt = loan * r / (1 - Math.pow(1+r, -n));
+  return pmt * 12;
+}
+
+function setMetric(id, val, status, benchTxt){
+  const el = $(id);
+  el.querySelector('.val').textContent = val;
+  el.classList.remove('green','yellow','red');
+  if(status) el.classList.add(status);
+  if(benchTxt) el.querySelector('.bench').textContent = benchTxt;
+}
+
+// Channel benchmarks [minDSCR, minDY, maxLTV, maxLTC, minFICO, minLiqRatio]
+const channels = [
+  {name:'Agency MF',      dscr:1.25, dy:0.08, ltv:0.75, ltc:0.80, fico:680, liqR:0.10},
+  {name:'CMBS',           dscr:1.25, dy:0.09, ltv:0.70, ltc:0.75, fico:650, liqR:0.10},
+  {name:'Bank Conv.',     dscr:1.25, dy:0.09, ltv:0.75, ltc:0.80, fico:680, liqR:0.10},
+  {name:'DSCR / Private', dscr:1.10, dy:0.07, ltv:0.75, ltc:0.80, fico:660, liqR:0.05},
+  {name:'Bridge / Hard',  dscr:1.00, dy:0.06, ltv:0.75, ltc:0.80, fico:620, liqR:0.05},
+  {name:'Construction',   dscr:1.20, dy:0.07, ltv:0.65, ltc:0.75, fico:680, liqR:0.15},
+  {name:'SBA 7(a)',       dscr:1.15, dy:0.08, ltv:0.90, ltc:0.90, fico:680, liqR:0.10},
+  {name:'SBA 504',        dscr:1.15, dy:0.08, ltv:0.90, ltc:0.90, fico:680, liqR:0.10}
+];
+
+function maxSenior(ch, rate, amort, arv, tpc, noi){
+  const constant = calcDebtService(1, rate, amort); // annual DS per $1 loan
+  const mLTV  = arv * ch.ltv;
+  const mLTC  = tpc * ch.ltc;
+  const mDSCR = noi / (ch.dscr * constant || 1);
+  const mDY   = noi / ch.dy;
+  return Math.max(0, Math.min(mLTV, mLTC, mDSCR, mDY));
+}
+
+function verdictColor(n_fail){
+  if(n_fail === 0) return 'green';
+  if(n_fail <= 2) return 'yellow';
+  return 'red';
+}
+
+// ---------- Main update ----------
+function update(){
+  revealAssetFields();
+
+  const loan = num('loan'), price = num('price'), aiv = num('aiv') || price;
+  const arv = num('arv') || aiv || price, noi = num('noi');
+  const revenue = num('revenue'), opex = num('opex');
+  const capex = num('capex'), closing = num('closingCosts');
+  const rate = num('rate'), amort = num('amort');
+  const tpc = price + capex + closing;
+
+  // Core metrics
+  const ds = calcDebtService(loan, rate, amort);
+  const ltvAs = loan && aiv ? loan/aiv : 0;
+  const ltvArv = loan && arv ? loan/arv : 0;
+  const ltc = loan && tpc ? loan/tpc : 0;
+  const dscr = noi && ds ? noi/ds : 0;
+  const dy = noi && loan ? noi/loan : 0;
+  const cap = noi && price ? noi/price : 0;
+
+  // Sponsor
+  const fico = num('fico'), liq = num('liq'), nw = num('nw');
+  const gcf = num('gcf'), gds = num('gds');
+  const globalDscr = (gcf && (gds + ds)) ? gcf/(gds + ds) : 0;
+  const liqRatio = loan ? liq/loan : 0;
+  const nwLoan = loan ? nw/loan : 0;
+
+  // Render metric tiles with traffic-light status
+  const tile = (id, val, status, bench) => setMetric(id, val, status, bench);
+  tile('m-ltv-as',   fmtPct(ltvAs),  ltvAs<=0.75?'green':ltvAs<=0.85?'yellow':'red');
+  tile('m-ltv-arv',  fmtPct(ltvArv), ltvArv<=0.70?'green':ltvArv<=0.80?'yellow':'red');
+  tile('m-ltc',      fmtPct(ltc),    ltc<=0.80?'green':ltc<=0.85?'yellow':'red');
+  tile('m-dscr',     fmtX(dscr),     dscr>=1.25?'green':dscr>=1.10?'yellow':'red');
+  tile('m-dy',       fmtPct(dy),     dy>=0.08?'green':dy>=0.06?'yellow':'red');
+  tile('m-cap',      fmtPct(cap),    'green', 'Market-dependent');
+  tile('m-gdscr',    fmtX(globalDscr), globalDscr>=1.15?'green':globalDscr>=1.0?'yellow':'red');
+  tile('m-liq',      fmtPct(liqRatio), liqRatio>=0.10?'green':liqRatio>=0.05?'yellow':'red');
+  tile('m-nwloan',   fmtX(nwLoan),   nwLoan>=1.0?'green':nwLoan>=0.5?'yellow':'red');
+
+  // Asset-specific metrics
+  renderAssetMetrics({price, tpc, noi, arv, loan, rate, amort});
+
+  // Channel fit + max senior
+  const cbody = $('channelBody'); cbody.innerHTML = '';
+  let bestChannel = null, bestMax = 0;
+  channels.forEach(ch => {
+    const maxSr = maxSenior(ch, rate, amort, arv, tpc, noi);
+    const maxSrAsIs = Math.min(maxSr, aiv * ch.ltv); // also cap at AIV
+    const allowed = Math.min(maxSr, maxSrAsIs);
+    const passDSCR = dscr>=ch.dscr, passDY = dy>=ch.dy, passLTV = ltvArv<=ch.ltv;
+    const passFICO = fico>=ch.fico, passLiq = liqRatio>=ch.liqR;
+    const fails = [!passDSCR, !passDY, !passLTV, !passFICO, !passLiq].filter(x=>x).length;
+    const v = verdictColor(fails);
+    cbody.innerHTML += `<tr>
+      <td class="channel">${ch.name}</td>
+      <td>${fmt$(allowed)}</td>
+      <td>${passDSCR?'✓':'✗'}</td>
+      <td>${passDY?'✓':'✗'}</td>
+      <td>${passLTV?'✓':'✗'}</td>
+      <td><span class="pill ${v}">${v.toUpperCase()}</span></td></tr>`;
+    if(v !== 'red' && allowed > bestMax){ bestMax = allowed; bestChannel = ch; }
+  });
+
+  // Capital stack
+  renderStack({loan, tpc, rate, amort, bestMax, noi});
+
+  // Overall verdict
+  const all_metrics = [
+    dscr>=1.20, dy>=0.08, ltvArv<=0.75, ltc<=0.80, fico>=680,
+    liqRatio>=0.10, nwLoan>=1.0, globalDscr>=1.15
+  ];
+  const passCount = all_metrics.filter(x=>x).length;
+  const failCount = 8 - passCount;
+  const vEl = $('verdict'); vEl.classList.remove('green','yellow','red');
+  if(loan === 0 || noi === 0){
+    vEl.classList.add('yellow'); vEl.firstChild.textContent = 'AWAITING DATA';
+    $('verdictSub').textContent = 'Enter Loan, NOI, and Value to underwrite';
+  } else if(failCount === 0){
+    vEl.classList.add('green'); vEl.firstChild.textContent = 'GREEN LIGHT';
+    $('verdictSub').textContent = `Strong on all ${passCount}/8 core benchmarks${bestChannel?' · Fit: '+bestChannel.name:''}`;
+  } else if(failCount <= 2){
+    vEl.classList.add('yellow'); vEl.firstChild.textContent = 'YELLOW — STRUCTURE NEEDED';
+    $('verdictSub').textContent = `${passCount}/8 benchmarks pass · Likely needs gap capital or repricing`;
+  } else {
+    vEl.classList.add('red'); vEl.firstChild.textContent = 'RED — DECLINE OR REPRICE';
+    $('verdictSub').textContent = `Only ${passCount}/8 core benchmarks pass · Significant restructure required`;
+  }
+
+  // Risk flags
+  renderFlags({loan, aiv, liqRatio, globalDscr, fico, experience:num('experience'), derog:$('derog').value, noi, ds, ltvAs});
+}
+
+function renderAssetMetrics({price, tpc, noi, arv, loan, rate, amort}){
+  const el = $('assetMetrics'); el.innerHTML = '';
+  const cls = $('assetClass').value;
+  const push = (lab, val) => el.innerHTML += `<div style="padding:8px 10px;background:#0b131f;border:1px solid var(--border);border-radius:5px"><div style="color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px">${lab}</div><div style="font-weight:700;font-size:15px;margin-top:2px">${val}</div></div>`;
+
+  if(['Multifamily','Manufactured Housing'].includes(cls)){
+    const units = num('units');
+    const rentIn = num('rentInPlace'), rentMk = num('rentMarket');
+    const ltl = rentMk ? (rentMk - rentIn)/rentMk : 0;
+    push('Price / Unit', units ? fmt$(price/units) : '—');
+    push('All-In / Unit', units ? fmt$(tpc/units) : '—');
+    push('Loss-to-Lease', fmtPct(ltl));
+  } else if(['Retail','Office','Industrial','Mixed-Use','Special Purpose'].includes(cls)){
+    const gla = num('gla');
+    push('Price / Sqft', gla ? '$'+(price/gla).toFixed(2) : '—');
+    push('WALT', num('walt') ? num('walt').toFixed(1)+' yrs' : '—');
+    push('Concentration Risk',
+      num('topTenant') > 0.5 ? '<span style="color:var(--red)">HIGH</span>' : 'OK');
+  } else if(cls === 'Hospitality'){
+    const keys = num('keys'), adr = num('adr'), occ = num('hotelOcc');
+    push('Price / Key', keys ? fmt$(price/keys) : '—');
+    push('RevPAR', '$'+(adr*occ).toFixed(2));
+    push('All-In / Key', keys ? fmt$(tpc/keys) : '—');
+  } else if(cls === 'Self-Storage'){
+    const nra = num('nra');
+    push('Price / Sqft', nra ? '$'+(price/nra).toFixed(2) : '—');
+    push('Annualized Rent', fmt$(num('ssRent') * nra * 12 * num('ssOcc')));
+    push('Climate %', fmtPct(num('ssClimate')));
+  } else if(cls === 'Owner-Occupied CRE'){
+    const ebitda = num('ebitda'), ds = calcDebtService(loan, rate, amort);
+    const bizDSCR = ds ? ebitda/ds : 0;
+    push('Business DSCR', fmtX(bizDSCR));
+    push('SBA 7(a) Eligible', num('occByBiz') >= 0.51 ? 'YES' : 'NO');
+    push('Min Equity (10%)', fmt$(tpc*0.10));
+  } else if(cls === 'Land' || $('dealType').value.includes('Construction') || $('dealType').value.includes('Development')){
+    const land = num('landBasis'), hard = num('hardCosts'), soft = num('softCosts');
+    const tdc = land + hard + soft;
+    const exitCap = num('exitCap');
+    const exitValue = noi && exitCap ? noi/exitCap : 0;
+    const yoc = tdc ? noi/tdc : 0;
+    push('Total Dev Cost', fmt$(tdc));
+    push('Yield on Cost', fmtPct(yoc));
+    push('Dev Spread', exitCap ? fmtPct(yoc-exitCap) : '—');
+  }
+}
+
+function renderStack({loan, tpc, rate, amort, bestMax, noi}){
+  const maxSr = bestMax || 0;
+  const senior = Math.min(maxSr, loan);
+  const gap1 = Math.max(0, loan - senior);
+
+  const mezzCap = tpc * 0.15, prefCap = tpc * 0.10, sellerCap = tpc * 0.15;
+  const mezzRate = 0.12, prefRate = 0.14, sellerRate = 0.07;
+
+  const mezz = Math.min(mezzCap, gap1);
+  const gap2 = gap1 - mezz;
+  const pref = Math.min(prefCap, gap2);
+  const gap3 = gap2 - pref;
+  const seller = Math.min(sellerCap, gap3);
+  const equity = Math.max(0, tpc - senior - mezz - pref - seller);
+  const total = senior + mezz + pref + seller + equity;
+
+  const dsSenior = calcDebtService(senior, rate, amort);
+  const dsAnnual = dsSenior + mezz*mezzRate + pref*prefRate + seller*sellerRate;
+  const blend = (senior+mezz+pref+seller) ? dsAnnual/(senior+mezz+pref+seller) : 0;
+
+  const layers = [
+    {n:'Senior', v:senior, r:rate, c:'senior'},
+    {n:'Mezzanine', v:mezz, r:mezzRate, c:'mezz'},
+    {n:'Preferred Equity', v:pref, r:prefRate, c:'pref'},
+    {n:'Seller Carry', v:seller, r:sellerRate, c:'seller'},
+    {n:'Sponsor / LP Equity', v:equity, r:0, c:'equity'}
+  ];
+
+  const bar = $('stackBar'); bar.innerHTML = '';
+  const body = $('stackBody'); body.innerHTML = '';
+  layers.forEach(l => {
+    const pct = total ? l.v/total : 0;
+    if(l.v > 0 && total > 0){
+      bar.innerHTML += `<div class="layer ${l.c}" style="flex:${l.v}">${l.n.split(' ')[0]} ${(pct*100).toFixed(0)}%</div>`;
+    }
+    body.innerHTML += `<tr>
+      <td class="lbl">${l.n}</td>
+      <td>${fmt$(l.v)}</td>
+      <td>${l.v>0 ? (l.r*100).toFixed(2)+'%' : '—'}</td>
+      <td>${total>0 ? (pct*100).toFixed(1)+'%' : '—'}</td></tr>`;
+  });
+  $('stackFoot').innerHTML = `<tr style="font-weight:700;background:#0b131f">
+    <td class="lbl">TOTAL</td><td>${fmt$(total)}</td><td>—</td><td>100.0%</td></tr>`;
+  $('blendCost').textContent = blend ? fmtPct(blend) : '—';
+}
+
+function renderFlags(d){
+  const el = $('flags'); el.innerHTML = '';
+  const flags = [];
+  if(d.loan && d.aiv && d.loan > d.aiv) flags.push('Loan exceeds As-Is value — over-advance. Requires reappraisal or reduced loan.');
+  if(d.liqRatio > 0 && d.liqRatio < 0.05) flags.push('Post-close liquidity below 5% of loan — likely covenant failure.');
+  if(d.globalDscr > 0 && d.globalDscr < 1.0) flags.push('Global DSCR below 1.0 — borrower cannot cover total obligations.');
+  if(d.fico && d.fico < 640) flags.push('FICO below most channel floors (640) — DSCR/Private only.');
+  if(d.experience === 0 && d.loan > 2_000_000) flags.push('First-time sponsor on large deal — need experienced KP or reduce leverage.');
+  if(d.derog === 'Yes') flags.push('Recent bankruptcy / foreclosure — declines in most conventional channels.');
+  if(d.noi && d.ds && d.noi < d.ds) flags.push('Property NOI does not cover proposed debt service — negative leverage.');
+  if(d.ltvAs > 1.0) flags.push('LTV >100% — structural issue, must be resolved before placement.');
+  if(flags.length === 0){
+    el.innerHTML = '<div class="flag ok" style="display:block">No red flags detected.</div>';
+  } else {
+    flags.forEach(f => el.innerHTML += `<div class="flag">${f}</div>`);
+  }
+}
+
+function resetAll(){
+  document.querySelectorAll('input').forEach(i => { if(i.type === 'number' || i.type === 'text') i.value = ''; });
+  $('rate').value = 0.075; $('amort').value = 30; $('fico').value = 720;
+  $('capRate').value = 0.065; $('mfOcc').value = 0.92; $('hotelOcc').value = 0.65;
+  $('ssOcc').value = 0.85; $('ssClimate').value = 0.25; $('occByBiz').value = 1.0;
+  $('exitCap').value = 0.065; $('topTenant').value = 0.4;
+  update();
+}
+
+// Bind CRE inputs
+document.querySelectorAll('#page-cre input, #page-cre select').forEach(el => el.addEventListener('input', update));
+revealAssetFields();
+update();
+
+// ===================== TAB SWITCHING =====================
+function switchTab(page){
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.page === page));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('hidden', p.id !== 'page-'+page));
+  $('headerSub').textContent = page === 'cre'
+    ? '60-second intake underwriting — LTV · DSCR · Debt Yield · Channel Fit · Capital Stack'
+    : '60-second intake underwriting — DSCR · FCCR · Bank Health · Product Fit · Blended Cost';
+}
+
+// ===================== BUSINESS / EQUIPMENT PAGE =====================
+const bnum = id => { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; };
+
+// Channel set tuned for $1M-$100M middle-market deals — institutional private debt first
+// Pricing: rates are ALL-IN approximations based on SOFR ~5.3% + spread convention (Q2 2026)
+// Gating: minEbitda gates hard — private credit funds won't commit below their minimums
+const bChannels = [
+  // ===== INSTITUTIONAL PRIVATE CREDIT — CORE & UPPER MIDDLE MARKET =====
+  {name:'Unitranche — Upper MM', maxAmt:150_000_000, term:'5-7 yrs', rate:[0.095,0.115],
+   minFICO:0, minDSCR:1.15, minIntCov:2.0, minTIB:3, maxLev:5.5, maxSrLev:5.5, minEbitda:15_000_000, minReq:25_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'CORE/UMM',
+   note:'Single-tranche first-lien; Churchill / Antares / Golub / Ares territory'},
+  {name:'Unitranche — Core MM', maxAmt:75_000_000, term:'5-7 yrs', rate:[0.10,0.125],
+   minFICO:0, minDSCR:1.15, minIntCov:2.0, minTIB:3, maxLev:5.5, maxSrLev:5.5, minEbitda:5_000_000, minReq:10_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'LMM/CORE',
+   note:'Blended senior/junior; 50-75bp covenant cushion'},
+  {name:'Unitranche — Lower MM', maxAmt:40_000_000, term:'5-6 yrs', rate:[0.105,0.135],
+   minFICO:0, minDSCR:1.15, minIntCov:1.8, minTIB:3, maxLev:5.0, maxSrLev:5.0, minEbitda:2_000_000, minReq:5_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'LMM',
+   note:'Main Street / Monroe / Twin Brook / Fifth Third / BDCs'},
+  {name:'Senior Stretch Term Loan', maxAmt:75_000_000, term:'5-7 yrs', rate:[0.09,0.115],
+   minFICO:0, minDSCR:1.20, minIntCov:2.5, minTIB:3, maxLev:4.5, maxSrLev:4.5, minEbitda:3_000_000, minReq:5_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'LMM/CORE',
+   note:'Senior-only first lien at cash-flow leverage'},
+  {name:'First Lien / Second Lien Split', maxAmt:100_000_000, term:'6/7 yrs', rate:[0.095,0.145],
+   minFICO:0, minDSCR:1.10, minIntCov:1.8, minTIB:3, maxLev:6.0, maxSrLev:4.25, minEbitda:10_000_000, minReq:20_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'CORE',
+   note:'1L + 2L structure — extra leverage at ~200bp premium'},
+  {name:'Mezzanine Debt', maxAmt:50_000_000, term:'5-7 yrs', rate:[0.11,0.14],
+   minFICO:0, minDSCR:1.05, minIntCov:1.5, minTIB:3, maxLev:6.5, maxSrLev:4.0, minEbitda:3_000_000, minReq:3_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'LMM/CORE',
+   note:'Cash+PIK or with warrants; layered on top of senior'},
+  {name:'Holdco / PIK Notes', maxAmt:40_000_000, term:'5-7 yrs', rate:[0.13,0.16],
+   minFICO:0, minDSCR:1.0, minIntCov:1.3, minTIB:3, maxLev:7.0, maxSrLev:5.5, minEbitda:5_000_000, minReq:5_000_000,
+   requiresProfit:true, noMCA:true, category:'private', tag:'CORE/UMM',
+   note:'Structurally subordinate; for dividend recap / incremental leverage'},
+  {name:'ABL Revolver (Private/BDC)', maxAmt:100_000_000, term:'5 yr Revolver', rate:[0.08,0.105],
+   minFICO:0, minDSCR:1.10, minIntCov:2.5, minTIB:2, maxLev:6.5, maxSrLev:5.5, minEbitda:1_000_000, minReq:3_000_000,
+   requiresProfit:false, noMCA:false, needsAR:true, category:'private', tag:'ANY',
+   note:'85% AR + 50-60% inventory borrowing base; SOFR+275-450'},
+  {name:'Recurring Revenue / ARR Loan', maxAmt:50_000_000, term:'3-5 yrs', rate:[0.095,0.135],
+   minFICO:0, minDSCR:0.9, minIntCov:0, minTIB:2, maxLev:99, maxSrLev:99, minEbitda:0, minReq:3_000_000,
+   requiresProfit:false, noMCA:true, category:'private', tag:'SAAS',
+   note:'Sized on ARR (3-7x) not EBITDA — for SaaS / subscription'},
+  {name:'Growth / Venture Debt', maxAmt:30_000_000, term:'3-4 yrs', rate:[0.11,0.15],
+   minFICO:0, minDSCR:0.9, minIntCov:0, minTIB:2, maxLev:99, maxSrLev:99, minEbitda:0, minReq:2_000_000,
+   requiresProfit:false, noMCA:true, category:'private', tag:'GROWTH',
+   note:'VC-backed; warrants + final payment; Hercules / SVB / Runway'},
+  // ===== BANK / SYNDICATED =====
+  {name:'Bank Club / Stretch TL', maxAmt:150_000_000, term:'5-7 yrs', rate:[0.075,0.095],
+   minFICO:0, minDSCR:1.30, minIntCov:3.0, minTIB:5, maxLev:4.0, maxSrLev:4.0, minEbitda:7_500_000, minReq:15_000_000,
+   requiresProfit:true, noMCA:true, category:'bank', tag:'CORE/UMM',
+   note:'Multi-bank club; tighter covenants; SOFR+300-400'},
+  {name:'Bank Term Loan (Conv.)', maxAmt:35_000_000, term:'5-7 yrs', rate:[0.075,0.095],
+   minFICO:700, minDSCR:1.25, minIntCov:3.0, minTIB:3, maxLev:3.5, maxSrLev:3.5, minEbitda:1_500_000, minReq:2_000_000,
+   requiresProfit:true, noMCA:true, category:'bank', tag:'LMM',
+   note:'Conventional bank; requires scrubbed financials + QoE'},
+  {name:'Bank ABL Revolver', maxAmt:100_000_000, term:'5 yr Revolver', rate:[0.07,0.09],
+   minFICO:680, minDSCR:1.15, minIntCov:2.5, minTIB:3, maxLev:5.0, maxSrLev:5.0, minEbitda:2_000_000, minReq:3_000_000,
+   requiresProfit:false, noMCA:true, needsAR:true, category:'bank', tag:'ANY',
+   note:'Wells / BofA / PNC; cheapest working capital available'},
+  {name:'Term Loan B (Syndicated)', maxAmt:500_000_000, term:'7 yrs', rate:[0.08,0.105],
+   minFICO:0, minDSCR:1.10, minIntCov:2.0, minTIB:3, maxLev:6.0, maxSrLev:5.0, minEbitda:50_000_000, minReq:75_000_000,
+   requiresProfit:true, noMCA:true, category:'bank', tag:'UMM',
+   note:'Broadly syndicated; rated; cov-lite possible at scale'},
+  // ===== SBA (capped sub-$5M EBITDA territory) =====
+  {name:'SBA 7(a)', maxAmt:5_000_000, term:'10-25 yrs', rate:[0.10,0.115],
+   minFICO:680, minDSCR:1.15, minIntCov:0, minTIB:2, maxLev:4.0, maxSrLev:4.0, minEbitda:250_000, minReq:1_000_000,
+   requiresProfit:true, noMCA:true, category:'sba', tag:'SMALL',
+   note:'Personal guarantee; full collateral; ≤$5M cap'},
+  {name:'SBA 504', maxAmt:15_000_000, term:'10-25 yrs', rate:[0.065,0.09],
+   minFICO:680, minDSCR:1.15, minIntCov:0, minTIB:2, maxLev:4.0, maxSrLev:4.0, minEbitda:250_000, minReq:1_000_000,
+   requiresProfit:true, noMCA:true, category:'sba', tag:'SMALL/RE',
+   note:'50% bank + 40% CDC + 10% equity; RE / heavy equipment only'},
+  // ===== SPECIALTY =====
+  {name:'Equipment Loan (Institutional)', maxAmt:100_000_000, term:'5-10 yrs', rate:[0.07,0.10],
+   minFICO:0, minDSCR:1.15, minIntCov:0, minTIB:2, maxLev:5.0, maxSrLev:5.0, minEbitda:500_000, minReq:1_000_000,
+   requiresProfit:false, noMCA:false, needsEquip:true, category:'specialty', tag:'HARD ASSET',
+   note:'Collateralized by equipment; 85-95% advance'},
+  {name:'Sale-Leaseback (RE / Equip)', maxAmt:150_000_000, term:'10-20 yrs', rate:[0.08,0.115],
+   minFICO:0, minDSCR:1.10, minIntCov:0, minTIB:2, maxLev:6.0, maxSrLev:6.0, minEbitda:1_000_000, minReq:3_000_000,
+   requiresProfit:false, noMCA:false, needsEquip:true, category:'specialty', tag:'HARD ASSET',
+   note:'Monetize owned RE / equipment via triple-net lease'},
+  {name:'Equipment Lease', maxAmt:50_000_000, term:'2-7 yrs', rate:[0.075,0.115],
+   minFICO:620, minDSCR:1.05, minIntCov:0, minTIB:1, maxLev:6.0, maxSrLev:6.0, minEbitda:0, minReq:1_000_000,
+   requiresProfit:false, noMCA:false, needsEquip:true, category:'specialty', tag:'HARD ASSET',
+   note:'$1 buyout or FMV; off-balance-sheet option'},
+  // ===== ALTERNATIVE / LAST-RESORT (still offered for sub-bankable) =====
+  {name:'Invoice Factoring', maxAmt:50_000_000, term:'30-90 days', rate:[0.12,0.24],
+   minFICO:550, minDSCR:0.9, minIntCov:0, minTIB:0.5, maxLev:99, maxSrLev:99, minEbitda:0, minReq:1_000_000,
+   requiresProfit:false, noMCA:false, needsAR:true, category:'alt', tag:'SUB-BANK',
+   note:'Non-recourse / recourse AR purchase; trade credit risk'},
+  {name:'Revenue-Based Financing', maxAmt:10_000_000, term:'12-36 mo', rate:[0.18,0.30],
+   minFICO:600, minDSCR:0.9, minIntCov:0, minTIB:1, maxLev:99, maxSrLev:99, minEbitda:0, minReq:1_000_000,
+   requiresProfit:false, noMCA:false, needsDeposits:true, category:'alt', tag:'SUB-BANK',
+   note:'% of monthly revenue; for businesses without EBITDA'},
+  {name:'MCA (last resort)', maxAmt:2_000_000, term:'3-18 mo', rate:[0.40,0.80],
+   minFICO:500, minDSCR:0, minIntCov:0, minTIB:0.5, maxLev:99, maxSrLev:99, minEbitda:0, minReq:1_000_000,
+   requiresProfit:false, noMCA:false, needsDeposits:true, mcaTolerant:true, category:'alt', tag:'LAST RESORT',
+   note:'Bridge only; refinance ASAP into institutional capital'}
+];
+
+function revealBizFields(){
+  const ft = $('b-finType').value;
+  const isEquip = /Equipment|Sale-Leaseback/.test(ft) || $('b-use').value === 'Equipment Purchase';
+  $('b-equipCard').classList.toggle('hidden', !isEquip);
+}
+
+function updateBiz(){
+  revealBizFields();
+  const request = bnum('b-request');
+  const revTTM = bnum('b-revTTM'), revPY = bnum('b-revPY'), revPY2 = bnum('b-revPY2');
+  const gp = bnum('b-gp'), ebitda = bnum('b-ebitda'), ebitdaPY = bnum('b-ebitdaPY'), addback = bnum('b-addback');
+  const capex = bnum('b-capex'), taxes = bnum('b-taxes');
+  const sde = ebitda + addback;
+  const cash = bnum('b-cash'), ar = bnum('b-ar'), inv = bnum('b-inv');
+  const exSrDebt = bnum('b-exdebt'), exSubDebt = bnum('b-exsubdebt');
+  const exDebt = exSrDebt + exSubDebt;
+  const exInt = bnum('b-exint'), exDS = bnum('b-exds'), rent = bnum('b-rent')*12;
+  const ev = bnum('b-ev');
+  const deposits = bnum('b-deposits'), adb = bnum('b-adb'), nsf = bnum('b-nsf');
+  const mcaPos = parseInt($('b-mcaPos').value) || 0, mcaPay = bnum('b-mcaPay');
+  const fico = bnum('b-fico'), bizCredit = bnum('b-bizcredit');
+  const nw = bnum('b-nw'), liq = bnum('b-liq');
+  const tib = bnum('b-tib'), exp = bnum('b-exp');
+  const derog = $('b-derog').value === 'Yes';
+  const priorSBA = $('b-priorSBA').value;
+  const use = $('b-use').value;
+  const sponsor = $('b-sponsor').value;
+  const concCust = bnum('b-concCust'), conc10 = bnum('b-conc10'), recurring = bnum('b-recurring');
+  const ebitdaQual = bnum('b-ebitdaQual');
+  const cyclical = $('b-cyclical').value;
+  const qoe = $('b-qoe').value;
+
+  // ===== PRO-FORMA CAPITAL STRUCTURE =====
+  // Proposed new interest expense (assume 10% blended for sizing)
+  const proposedRate = 0.10, proposedYears = 6;
+  const newDS = calcDebtService(request, proposedRate, proposedYears);
+  const newInt = request * proposedRate; // approximation for coverage calcs
+  const totalDS = exDS + newDS;
+  const totalInt = exInt + newInt;
+  const mcaAnnual = mcaPay * 260;
+
+  // Assume "sub" use classifications — for senior-only products we count request as senior
+  const isJunior = /Mezzanine|Holdco|Sub|PIK/.test($('b-finType').value);
+  const pfSrDebt = exSrDebt + (isJunior ? 0 : request);
+  const pfSubDebt = exSubDebt + (isJunior ? request : 0);
+  const pfTotalDebt = pfSrDebt + pfSubDebt;
+
+  // ===== CORE MIDDLE-MARKET METRICS =====
+  const totLev = ebitda ? pfTotalDebt / ebitda : 0;
+  const srLev = ebitda ? pfSrDebt / ebitda : 0;
+  const intCov = totalInt ? ebitda / totalInt : 0;
+  // FCCR = (EBITDA - Capex - Taxes) / (Interest + Principal + Rent)
+  const fccrNum = ebitda - capex - taxes;
+  const fccrDen = totalDS + rent;
+  const fccr = fccrDen ? fccrNum / fccrDen : 0;
+  const ebitdaMargin = revTTM ? ebitda/revTTM : 0;
+  const gMargin = revTTM ? gp/revTTM : 0;
+  // 2-yr CAGR; fall back to YoY if no T-2
+  const cagr = revPY2 > 0 ? Math.pow(revTTM/revPY2, 0.5) - 1
+    : revPY > 0 ? (revTTM/revPY - 1) : 0;
+  const ltvEv = ev > 0 ? pfTotalDebt / ev : 0;
+  const liqToReq = request ? liq/request : 0;
+  const reqToRev = revTTM ? request/revTTM : 0;
+
+  // Legacy DSCR kept for channel gating back-compat
+  const dscr = totalDS ? sde / totalDS : 0;
+  const leverage = totLev; // alias for backward-compat
+
+  // ===== EBITDA SCALE CLASSIFICATION =====
+  let scale, scaleLabel, scaleColor;
+  if(ebitda >= 50_000_000){ scale='UMM'; scaleLabel='Upper Middle Market · $50M+ EBITDA'; scaleColor='var(--accent)'; }
+  else if(ebitda >= 15_000_000){ scale='CORE'; scaleLabel='Core Middle Market · $15-50M EBITDA'; scaleColor='var(--accent)'; }
+  else if(ebitda >= 5_000_000){ scale='LMM'; scaleLabel='Lower Middle Market · $5-15M EBITDA'; scaleColor='#5dade2'; }
+  else if(ebitda >= 2_000_000){ scale='LMM-'; scaleLabel='Sub-LMM · $2-5M EBITDA (stretch for PC)'; scaleColor='#f39c12'; }
+  else if(ebitda >= 500_000){ scale='SMALL'; scaleLabel='Small Business · $500K-2M EBITDA (SBA / bank)'; scaleColor='#f39c12'; }
+  else if(ebitda > 0){ scale='MICRO'; scaleLabel='Micro · <$500K EBITDA (SBA / alt only)'; scaleColor='var(--red)'; }
+  else { scale='NONE'; scaleLabel='No EBITDA reported'; scaleColor='var(--muted)'; }
+  $('b-scaleBandVal').textContent = scaleLabel;
+  $('b-scaleBandVal').style.color = scaleColor;
+
+  // Private credit eligibility signal
+  const pcBasic = ebitda>=2_000_000 && tib>=3 && !derog && concCust<=0.35 && srLev<=5.5;
+  const pcIdeal = ebitda>=5_000_000 && intCov>=2 && ebitdaMargin>=0.10 && concCust<=0.25 && srLev<=4.5;
+  const pcLabel = pcIdeal ? 'YES — Core PC territory' : pcBasic ? 'Possible — LMM stretch' : 'No — too small / weak';
+  const pcColor = pcIdeal ? 'var(--green)' : pcBasic ? 'var(--yellow)' : 'var(--red)';
+  $('b-pcEligible').textContent = pcLabel;
+  $('b-pcEligible').style.color = pcColor;
+
+  // ===== TILE RENDERING =====
+  const tile = (id, val, status, bench) => setMetric(id, val, status, bench);
+  tile('bm-totlev',  fmtX(totLev),  totLev<=5?'green':totLev<=6?'yellow':'red');
+  tile('bm-srlev',   fmtX(srLev),   srLev<=4?'green':srLev<=4.5?'yellow':'red');
+  tile('bm-intcov',  fmtX(intCov),  intCov>=2.5?'green':intCov>=1.8?'yellow':'red');
+  tile('bm-fccr',    fmtX(fccr),    fccr>=1.20?'green':fccr>=1.05?'yellow':'red');
+  tile('bm-margin',  fmtPct(ebitdaMargin), ebitdaMargin>=0.10?'green':ebitdaMargin>=0.05?'yellow':'red');
+  tile('bm-cagr',    fmtPct(cagr),  cagr>=0?'green':cagr>=-0.05?'yellow':'red');
+  tile('bm-ltvev',   fmtPct(ltvEv), ltvEv<=0.55?'green':ltvEv<=0.65?'yellow':'red');
+  tile('bm-conc',    concCust?fmtPct(concCust):'—', concCust<=0.15?'green':concCust<=0.25?'yellow':'red');
+  tile('bm-liq',     fmtPct(liqToReq), liqToReq>=0.10?'green':liqToReq>=0.05?'yellow':'red');
+
+  // Deal-specific metrics panel
+  renderBizSpecific({ft:$('b-finType').value, deposits, adb, mcaPos, ar, inv, request, sde, ev, ebitda, recurring, ebitdaPY, qoe});
+
+  // ===== CHANNEL / PRODUCT FIT =====
+  const bbody = $('b-channelBody'); bbody.innerHTML = '';
+  let bestProduct = null, bestScore = -1;
+  bChannels.forEach(ch => {
+    const minFICO = ch.minFICO || 0;
+    const minIntCov = ch.minIntCov || 0;
+    const maxSrLev = ch.maxSrLev !== undefined ? ch.maxSrLev : ch.maxLev;
+    const checks = [
+      !minFICO || fico>=minFICO,
+      dscr>=ch.minDSCR || ebitda>=ch.minEbitda*1.5, // very strong EBITDA overrides DSCR check
+      tib>=ch.minTIB,
+      totLev<=ch.maxLev,
+      srLev<=maxSrLev,
+      !minIntCov || intCov>=minIntCov || intCov===0,
+      !(ch.requiresProfit && ebitda<=0),
+      !(ch.noMCA && mcaPos>0), !derog || !ch.noMCA,
+      !(ch.needsAR && ar<=0), !(ch.needsDeposits && deposits<=0),
+      !(ch.needsEquip && bnum('b-equipCost')<=0 && !/Equipment|Sale/.test($('b-finType').value)),
+      ebitda >= (ch.minEbitda||0),
+      request >= (ch.minReq||0)
+    ];
+    const fails = checks.filter(x=>!x).length;
+    const v = fails===0?'green':fails<=1?'yellow':'red';
+    const maxAmt = Math.min(ch.maxAmt,
+      ch.needsAR ? ar*0.85 + inv*0.55 : Infinity,
+      ch.needsDeposits ? deposits*12 : Infinity,
+      // EBITDA-sized cap for cash-flow products
+      ebitda>0 && !ch.needsAR && !ch.needsEquip ? ebitda * ch.maxLev : Infinity
+    );
+    // Category badge
+    const catLabel = ch.category==='private' ? '<span style="font-size:9px;color:var(--accent);letter-spacing:.5px;font-weight:600">PRIVATE</span>'
+      : ch.category==='bank' ? '<span style="font-size:9px;color:#5dade2;letter-spacing:.5px;font-weight:600">BANK</span>'
+      : ch.category==='sba' ? '<span style="font-size:9px;color:#a569bd;letter-spacing:.5px;font-weight:600">SBA</span>'
+      : ch.category==='specialty' ? '<span style="font-size:9px;color:#f39c12;letter-spacing:.5px;font-weight:600">SPECIALTY</span>'
+      : '<span style="font-size:9px;color:var(--muted);letter-spacing:.5px;font-weight:600">ALT</span>';
+    const tagLabel = ch.tag ? `<span style="font-size:9px;color:var(--muted);margin-left:4px">${ch.tag}</span>` : '';
+    const noteLabel = ch.note ? `<div style="font-size:10px;color:var(--muted);margin-top:2px">${ch.note}</div>` : '';
+    bbody.innerHTML += `<tr>
+      <td class="channel">${ch.name}<div>${catLabel}${tagLabel}</div>${noteLabel}</td>
+      <td>${fmt$(maxAmt)}</td>
+      <td style="font-size:11px">${ch.term}</td>
+      <td style="font-size:11px">${(ch.rate[0]*100).toFixed(1)}-${(ch.rate[1]*100).toFixed(1)}%</td>
+      <td><span class="pill ${v}">${v.toUpperCase()}</span></td></tr>`;
+    // Scoring: private at $2M+ EBITDA dominates; alt penalized heavily
+    const coverage = Math.min(1, maxAmt/Math.max(request,1));
+    const avgRate = (ch.rate[0]+ch.rate[1])/2;
+    const categoryBonus = ch.category==='private' ? 0.6 : ch.category==='bank' ? 0.4
+      : ch.category==='specialty' ? 0.2 : ch.category==='sba' ? (ebitda<2_000_000?0.35:-0.1) : -0.4;
+    // Scale-appropriate bonus: reward products targeting this deal's EBITDA band
+    const bandBonus = ch.tag && ((scale==='UMM' && /UMM/.test(ch.tag)) ||
+      (scale==='CORE' && /CORE/.test(ch.tag)) ||
+      (scale==='LMM' && /LMM/.test(ch.tag)) ||
+      (scale==='LMM-' && /LMM/.test(ch.tag))) ? 0.3 : 0;
+    const score = v==='green' ? (coverage*2 - avgRate*2.5 + categoryBonus + bandBonus)
+      : v==='yellow' ? (coverage - avgRate*2.5 + categoryBonus + bandBonus) : -99;
+    if(score>bestScore && maxAmt>0){ bestScore = score; bestProduct = {...ch, maxAmt}; }
+  });
+
+  // Capital stack — purpose-of-capital aware
+  renderBizStack({request, ar, inv, deposits, ebitda, sde, ebitdaFlag:ebitda>0, mcaPos, fico, tib, derog,
+    equipCost:bnum('b-equipCost')+bnum('b-equipSoft'), ft:$('b-finType').value,
+    totLev, srLev, intCov, ev, use, sponsor, scale, exSrDebt, exSubDebt, recurring});
+
+  // ===== INSTITUTIONAL VERDICT (10 middle-market benchmarks) =====
+  const benchmarks = [
+    totLev <= 5.5,           // total leverage
+    srLev <= 4.5,            // senior leverage
+    intCov >= 2.0,           // interest coverage
+    fccr >= 1.15,            // fixed charge coverage
+    ebitdaMargin >= 0.08,    // EBITDA margin
+    cagr >= -0.05,           // revenue stability
+    ltvEv <= 0.65 || ev===0, // LTV on EV (if provided)
+    concCust <= 0.30 || concCust===0, // customer concentration
+    liqToReq >= 0.10 || liq===0,      // sponsor skin
+    tib >= 3 && !derog && ebitda>=1_000_000 // institutional threshold
+  ];
+  const passCount = benchmarks.filter(x=>x).length;
+  const failCount = 10 - passCount;
+  const vEl = $('b-verdict'); vEl.classList.remove('green','yellow','red');
+  if(request === 0 || revTTM === 0){
+    vEl.classList.add('yellow'); vEl.firstChild.textContent = 'AWAITING DATA';
+    $('b-verdictSub').textContent = 'Enter Request, TTM Revenue, and EBITDA to underwrite';
+  } else if(ebitda < 500_000 && request >= 1_000_000){
+    vEl.classList.add('red'); vEl.firstChild.textContent = 'RED — BELOW INSTITUTIONAL FLOOR';
+    $('b-verdictSub').textContent = `EBITDA too thin for $${(request/1e6).toFixed(1)}M request · SBA/alt only`;
+  } else if(failCount <= 1){
+    vEl.classList.add('green'); vEl.firstChild.textContent = 'GREEN — INSTITUTIONAL QUALITY';
+    $('b-verdictSub').textContent = `${passCount}/10 benchmarks pass${bestProduct?' · Lead: '+bestProduct.name:''}`;
+  } else if(failCount <= 3){
+    vEl.classList.add('yellow'); vEl.firstChild.textContent = 'YELLOW — STRUCTURED / SECOND-TIER';
+    $('b-verdictSub').textContent = `${passCount}/10 pass · Layer mezz or second lien, or wait for seasoning`;
+  } else {
+    vEl.classList.add('red'); vEl.firstChild.textContent = 'RED — BELOW INSTITUTIONAL STANDARDS';
+    $('b-verdictSub').textContent = `Only ${passCount}/10 pass · Alternative / non-institutional capital only`;
+  }
+
+  // Risk flags
+  renderBizFlags({mcaPos, nsf, ebitda, growth:cagr, tib, fico, derog, leverage:totLev, srLev, intCov,
+    mcaAnnual, ebitdaYr:ebitda, concCust, ebitdaMargin, qoe, ebitdaPY});
+}
+
+function renderBizSpecific({ft, deposits, adb, mcaPos, ar, inv, request, sde, ev, ebitda, recurring, ebitdaPY, qoe}){
+  const el = $('b-specificMetrics'); el.innerHTML = '';
+  const push = (lab, val, status) => {
+    const color = status==='red'?'var(--red)':status==='yellow'?'var(--yellow)':status==='green'?'var(--green)':'var(--ink)';
+    el.innerHTML += `<div style="padding:8px 10px;background:#0b131f;border:1px solid var(--border);border-radius:5px"><div style="color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px">${lab}</div><div style="font-weight:700;font-size:15px;margin-top:2px;color:${color}">${val}</div></div>`;
+  };
+  // Institutional-first: EV multiple, EBITDA growth, QoE status, recurring rev
+  const evMult = ev && ebitda ? ev/ebitda : 0;
+  push('EV / EBITDA Multiple', evMult ? fmtX(evMult) : '—',
+    evMult===0 ? 'neutral' : evMult<=8 ? 'green' : evMult<=12 ? 'yellow' : 'red');
+  const ebitdaGrowth = ebitdaPY>0 ? (ebitda-ebitdaPY)/ebitdaPY : 0;
+  push('EBITDA Growth YoY', ebitdaPY ? fmtPct(ebitdaGrowth) : '—',
+    ebitdaPY===0 ? 'neutral' : ebitdaGrowth>=0.05 ? 'green' : ebitdaGrowth>=-0.05 ? 'yellow' : 'red');
+  push('QoE Status', qoe, qoe.startsWith('Yes') ? 'green' : qoe==='In process' ? 'yellow' : 'red');
+  push('Recurring Revenue %', recurring ? fmtPct(recurring) : '—',
+    recurring>=0.60 ? 'green' : recurring>=0.30 ? 'yellow' : 'neutral');
+  push('ABL Borrowing Base (85% AR + 55% Inv)', (ar||inv) ? fmt$(ar*0.85 + inv*0.55) : '—', 'neutral');
+  push('Max Cash-Flow Senior (4.5x EBITDA)', ebitda ? fmt$(ebitda*4.5) : '—', 'neutral');
+  if(/Equipment|Sale/.test(ft)){
+    const cost = bnum('b-equipCost') + bnum('b-equipSoft');
+    const fmv = bnum('b-equipFMV') || cost*0.85;
+    push('Equipment LTC', cost ? fmtPct(request/cost) : '—',
+      cost && request/cost<=0.85 ? 'green' : 'yellow');
+    push('LTV on FMV', fmv ? fmtPct(request/fmv) : '—',
+      fmv && request/fmv<=0.90 ? 'green' : 'yellow');
+  }
+  // MCA / alt context only if flagged
+  if(mcaPos>0){
+    push('MCA Stack Position', mcaPos+' position(s)', mcaPos===1?'yellow':'red');
+  }
+}
+
+// ============================================================
+// renderBizStack — PURPOSE-OF-CAPITAL AWARE for $1M-$100M deals
+// ============================================================
+function renderBizStack({request, ar, inv, deposits, ebitda, sde, ebitdaFlag, mcaPos, fico, tib, derog,
+                         equipCost, ft, totLev, srLev, intCov, ev, use, sponsor, scale, exSrDebt, exSubDebt, recurring}){
+  const layers = [];
+
+  // Qualification gates
+  const institutional = tib>=3 && !derog && mcaPos<=1 && ebitda>=2_000_000;
+  const coreMM = institutional && ebitda>=5_000_000 && srLev<=5 && intCov>=1.8;
+  const upperMM = institutional && ebitda>=15_000_000;
+  const bankable = fico>=700 && tib>=5 && !derog && mcaPos===0 && ebitda>=1_500_000 && srLev<=3.5;
+  const bankClub = bankable && ebitda>=7_500_000 && request>=15_000_000;
+  const sbaQual = fico>=680 && tib>=2 && !derog && mcaPos===0 && ebitda>=250_000 && request<=5_000_000;
+  const peBacked = sponsor==='pe' || sponsor==='indep';
+
+  // Blended pricing signal (PE sponsors get ~25-50bp tighter)
+  const pxBps = peBacked ? -0.005 : 0;
+  const add = (n,v,r,c,note) => { if(v>0) layers.push({n,v,r:Math.max(0,r+pxBps),c,note:note||''}); };
+
+  // ======================================================================
+  // ROUTE BY PURPOSE OF CAPITAL
+  // ======================================================================
+
+  // --- EQUIPMENT PURCHASE (hard asset) ---
+  if(use==='Equipment Purchase' || /Equipment|Sale-Leaseback/.test(ft)){
+    const cost = equipCost > 0 ? equipCost : request;
+    const eqLoan = Math.min(cost * 0.90, request);
+    add('Equipment Loan (Institutional)', eqLoan, 0.085, 'senior', '85-95% advance on invoice');
+    const rem = request - eqLoan;
+    if(rem>0 && coreMM){
+      add('Private Credit Working Capital', rem, 0.11, 'mezz', 'Incremental term loan from same PC fund');
+    } else if(rem>0 && bankable){
+      add('Bank ABL Revolver', rem, 0.08, 'mezz', 'Cheapest working-capital layer');
+    } else if(rem>0){
+      add('Sponsor Equity', rem, 0, 'equity');
+    }
+  }
+  // --- LBO / PLATFORM ACQUISITION ---
+  else if(use==='LBO / Platform Acquisition' || use==='Add-on / M&A Rollup'){
+    if(upperMM){
+      const srStretch = Math.min(ebitda * 4.25, request * 0.70);
+      add('First Lien / Unitranche (Upper MM)', srStretch, 0.105, 'senior', 'Syndicated PC; SOFR+550-650');
+      const gap1 = request - srStretch;
+      const secondLien = Math.min(ebitda * 1.25, gap1);
+      if(secondLien>0) add('Second Lien Term Loan', secondLien, 0.135, 'mezz', '2L at ~200bp over 1L');
+      const gap2 = gap1 - secondLien;
+      if(gap2>0) add('Sponsor Equity / Rollover', gap2, 0, 'equity', 'Typical 35-45% equity check');
+    } else if(coreMM){
+      const uni = Math.min(ebitda * 4.5, request * 0.65);
+      add('Unitranche — Core MM', uni, 0.11, 'senior', 'Churchill/Antares/Golub/Monroe');
+      const gap1 = request - uni;
+      const mezz = Math.min(ebitda * 1.25, gap1);
+      if(mezz > 500_000) add('Mezzanine Debt', mezz, 0.13, 'mezz', 'Cash + PIK / warrants');
+      const gap2 = gap1 - Math.max(0,mezz);
+      const sellerNote = Math.min(gap2 * 0.3, ebitda * 0.75);
+      if(sellerNote > 0) add('Seller Note (subordinated)', sellerNote, 0.07, 'seller', 'Bridges equity gap');
+      const gap3 = gap2 - Math.max(0,sellerNote);
+      if(gap3>0) add('Sponsor Equity / Rollover', gap3, 0, 'equity');
+    } else if(institutional){
+      const uni = Math.min(ebitda * 4.5, request * 0.60);
+      add('Unitranche — Lower MM', uni, 0.12, 'senior', 'Main Street / Twin Brook / BDC');
+      const gap1 = request - uni;
+      const sellerNote = Math.min(gap1 * 0.35, ebitda * 1.0);
+      if(sellerNote>0) add('Seller Note (subordinated)', sellerNote, 0.07, 'seller');
+      const gap2 = gap1 - Math.max(0,sellerNote);
+      if(gap2>0) add('Sponsor Equity', gap2, 0, 'equity');
+    } else if(sbaQual){
+      const sba = Math.min(5_000_000, request * 0.75);
+      add('SBA 7(a) — Acquisition', sba, 0.105, 'senior', 'Personal guarantee + full collateral');
+      const gap1 = request - sba;
+      const sellerNote = Math.min(gap1 * 0.5, ebitda * 0.75);
+      if(sellerNote>0) add('Seller Note (5-yr)', sellerNote, 0.06, 'seller', 'Often required by SBA');
+      const gap2 = gap1 - Math.max(0,sellerNote);
+      if(gap2>0) add('Sponsor Equity', gap2, 0, 'equity');
+    } else {
+      add('Requires Buyer Equity Injection', request, 0, 'equity', 'Cash flow / credit below institutional floor');
+    }
+  }
+  // --- DIVIDEND RECAP (leverage up for distribution) ---
+  else if(use==='Dividend Recapitalization'){
+    if(coreMM || upperMM){
+      const uni = Math.min(ebitda * 4.5, request * 0.75);
+      add('Senior Stretch / Unitranche', uni, 0.105, 'senior', 'Refi existing + new money');
+      const gap = request - uni;
+      const holdco = Math.min(ebitda * 1.5, gap);
+      if(holdco>0) add('Holdco / PIK Notes', holdco, 0.135, 'mezz', 'Accrues to 6-7x total leverage');
+      const gap2 = gap - Math.max(0, holdco);
+      if(gap2>0) add('Sponsor Co-Invest', gap2, 0, 'equity');
+    } else {
+      add('Dividend recap typically requires $5M+ EBITDA', request, 0, 'equity',
+        'Alternative: refinance with modest cash-out');
+    }
+  }
+  // --- PARTNER / SHAREHOLDER BUYOUT ---
+  else if(use==='Partner / Shareholder Buyout' || use==='ESOP Transaction'){
+    if(coreMM){
+      const senior = Math.min(ebitda * 4.0, request * 0.70);
+      add('Senior Stretch TL', senior, 0.10, 'senior');
+      const gap1 = request - senior;
+      const mezz = Math.min(ebitda * 1.25, gap1 * 0.6);
+      if(mezz>0) add('Mezzanine Debt', mezz, 0.13, 'mezz');
+      const gap2 = gap1 - Math.max(0, mezz);
+      const seller = Math.min(gap2, ebitda * 1.0);
+      if(seller>0) add('Seller Note (subordinated)', seller, 0.07, 'seller');
+      const gap3 = gap2 - Math.max(0, seller);
+      if(gap3>0) add('Sponsor Equity', gap3, 0, 'equity');
+    } else if(sbaQual){
+      const sba = Math.min(5_000_000, request * 0.75);
+      add('SBA 7(a) — Buyout', sba, 0.105, 'senior');
+      const gap = request - sba;
+      if(gap>0) add('Seller Note (5-yr standby)', gap * 0.7, 0.06, 'seller');
+      const rem = gap - gap*0.7;
+      if(rem>0) add('Sponsor Equity', rem, 0, 'equity');
+    } else {
+      add('Needs seller financing or sponsor equity', request, 0, 'equity');
+    }
+  }
+  // --- REFINANCE / DEBT CONSOLIDATION ---
+  else if(use==='Refinance / Debt Consolidation'){
+    if(coreMM || upperMM){
+      const uni = Math.min(ebitda * 5.0, request);
+      add('Unitranche Refi', uni, 0.105, 'senior', 'Consolidate all tranches into single facility');
+      const gap = request - uni;
+      if(gap>0 && ebitda>=5_000_000) add('Mezzanine Top-Up', Math.min(ebitda*1, gap), 0.13, 'mezz');
+      const rem = gap - Math.min(ebitda*1, gap);
+      if(rem>0) add('Sponsor Equity', rem, 0, 'equity');
+    } else if(institutional){
+      const uni = Math.min(ebitda * 4.5, request);
+      add('Private Credit Term Loan — Refi', uni, 0.12, 'senior');
+      const gap = request - uni;
+      if(gap>0) add('Sponsor Equity', gap, 0, 'equity');
+    } else if(bankable){
+      const term = Math.min(request, ebitda*3.5);
+      add('Bank Term Loan (Refi)', term, 0.085, 'senior');
+      const gap = request - term;
+      if(gap>0) add('Mezz / Equity Gap', gap, 0.12, 'mezz');
+    } else {
+      add('Refi needs positive cash flow + $1M+ EBITDA', request, 0, 'equity');
+    }
+  }
+  // --- GROWTH CAPEX / EXPANSION ---
+  else if(use==='Growth Capex / Expansion'){
+    if(bankClub){
+      const club = Math.min(ebitda * 3.5, request * 0.75);
+      add('Bank Club / Stretch TL', club, 0.085, 'senior', 'Wells/JPM/BofA-led; cheapest pricing');
+      const gap = request - club;
+      if(gap>0) add('Bank ABL Revolver', gap, 0.075, 'mezz');
+    } else if(coreMM){
+      const uni = Math.min(ebitda * 4.0, request * 0.70);
+      add('Unitranche — Growth', uni, 0.105, 'senior');
+      const gap = request - uni;
+      if(gap>0 && recurring>=0.4){
+        add('Recurring Revenue Loan (top-up)', Math.min(gap, ebitda*1.5), 0.115, 'mezz');
+      } else if(gap>0){
+        add('Mezzanine / Growth Debt', gap, 0.125, 'mezz');
+      }
+    } else if(institutional){
+      const term = Math.min(ebitda * 4.0, request * 0.6);
+      add('Private Credit Term Loan', term, 0.115, 'senior');
+      const gap = request - term;
+      const abl = Math.min(ar*0.85 + inv*0.55, gap);
+      if(abl > 500_000) add('ABL Revolver', abl, 0.09, 'mezz');
+      const rem = gap - Math.max(0,abl);
+      if(rem>0) add('Sponsor Equity / Growth Capital', rem, 0, 'equity');
+    } else if(sbaQual){
+      add('SBA 7(a) Expansion', Math.min(5_000_000, request), 0.105, 'senior');
+      const rem = request - Math.min(5_000_000, request);
+      if(rem>0) add('Sponsor Equity', rem, 0, 'equity');
+    } else {
+      add('Growth capex — needs proven EBITDA', request, 0, 'equity');
+    }
+  }
+  // --- WORKING CAPITAL / REVOLVER ---
+  else if(use==='Working Capital / Revolver' || use==='Inventory / AR Bridge'){
+    const baseAr = ar * 0.85, baseInv = inv * 0.55;
+    const ablBase = baseAr + baseInv;
+    if(bankable && ablBase > 1_000_000){
+      const bankAbl = Math.min(ablBase, request);
+      add('Bank ABL Revolver', bankAbl, 0.075, 'senior', 'Cheapest working-cap option');
+      const gap = request - bankAbl;
+      if(gap>0 && ebitda>=1_500_000) add('Bank Term Loan (supplemental)', gap, 0.085, 'mezz');
+    } else if(institutional && ablBase > 500_000){
+      const pcAbl = Math.min(ablBase, request);
+      add('Private ABL Revolver (BDC)', pcAbl, 0.095, 'senior');
+      const gap = request - pcAbl;
+      if(gap>0 && ebitda>=2_000_000) add('Private Credit Term Loan', gap, 0.115, 'mezz');
+    } else if(ar>0 || inv>0){
+      const abl = Math.min(ablBase, request);
+      add('ABL / Asset-Based Term', abl, 0.105, 'senior');
+      const gap = request - abl;
+      if(gap>0 && ar>0) add('Invoice Factoring (backup)', Math.min(ar*0.90, gap), 0.16, 'pref',
+        'Last-resort AR monetization');
+    } else {
+      add('Needs AR/Inventory collateral or EBITDA', request, 0, 'equity');
+    }
+  }
+  // --- SAAS / RECURRING REVENUE (startup or growth stage) ---
+  else if(recurring>=0.60 && ebitda<2_000_000 && request>=2_000_000){
+    const arr = bnum('b-revTTM') * recurring; // approx ARR from recurring rev %
+    const rrl = Math.min(arr * 0.5, 50_000_000, request);
+    add('Recurring Revenue / ARR Loan', rrl, 0.115, 'senior', 'Sized on ARR (3-7x MRR)');
+    const gap = request - rrl;
+    if(gap>0) add('Growth / Venture Debt', gap, 0.13, 'mezz');
+  }
+  // --- DIP / SPECIAL SITUATIONS ---
+  else if(use==='DIP / Special Situations'){
+    add('DIP / Rescue Financing', request, 0.15, 'senior', 'Priming lien; short-term; specialty lenders');
+  }
+  // --- STARTUP / EARLY STAGE ---
+  else if(use==='Startup / Early Stage'){
+    if(sbaQual){
+      add('SBA 7(a) Startup', Math.min(5_000_000, request * 0.80), 0.11, 'senior');
+      const rem = request - Math.min(5_000_000, request * 0.80);
+      if(rem>0) add('Founder Equity', rem, 0, 'equity');
+    } else if(recurring>=0.40){
+      add('Growth / Venture Debt', Math.min(request*0.5, 10_000_000), 0.13, 'senior');
+      add('Founder / Investor Equity', request*0.5, 0, 'equity');
+    } else {
+      add('Startup — equity-heavy or SBA route', request, 0, 'equity');
+    }
+  }
+  // --- DEFAULT FALLBACK ---
+  else {
+    if(upperMM){
+      const uni = Math.min(ebitda * 4.5, request);
+      add('Unitranche — Upper MM', uni, 0.10, 'senior');
+      const gap = request - uni;
+      if(gap>0) add('Sponsor Equity', gap, 0, 'equity');
+    } else if(coreMM){
+      const uni = Math.min(ebitda * 4.5, request);
+      add('Unitranche — Core MM', uni, 0.11, 'senior');
+      const gap = request - uni;
+      if(gap>0) add('Sponsor Equity', gap, 0, 'equity');
+    } else if(institutional){
+      const term = Math.min(ebitda * 4.0, request);
+      add('Private Credit Term Loan', term, 0.12, 'senior');
+      const gap = request - term;
+      if(gap>0) add('Sponsor Equity', gap, 0, 'equity');
+    } else if(bankable){
+      add('Bank Term Loan', Math.min(ebitda*3.5, request), 0.085, 'senior');
+      const gap = request - Math.min(ebitda*3.5, request);
+      if(gap>0) add('Bank LOC', gap, 0.095, 'mezz');
+    } else if(sbaQual){
+      add('SBA 7(a)', Math.min(5_000_000, request), 0.105, 'senior');
+    } else if(ar>0 || inv>0){
+      const abl = Math.min(ar*0.85 + inv*0.55, request);
+      add('ABL (Private)', abl, 0.105, 'senior');
+      const gap = request - abl;
+      if(gap>0) add('Sponsor Equity', gap, 0, 'equity');
+    } else if(deposits>0){
+      // LAST RESORT — clearly labeled
+      const rbf = Math.min(deposits*8, request*0.5);
+      add('Revenue-Based Financing (last resort)', rbf, 0.24, 'pref');
+      const rem = request - rbf;
+      if(rem>0) add('MCA (last resort — refi ASAP)', rem, 0.55, 'pref');
+    } else {
+      add('Insufficient data — need EBITDA / AR / Collateral', request, 0, 'equity');
+    }
+  }
+
+  const total = layers.reduce((s,l)=>s+l.v, 0);
+  const paidLayers = layers.filter(l => l.r > 0);
+  const weightedCost = paidLayers.reduce((s,l)=>s + l.v*l.r, 0);
+  const paidTotal = paidLayers.reduce((s,l)=>s+l.v, 0);
+  const blend = paidTotal ? weightedCost/paidTotal : 0;
+
+  const bar = $('b-stackBar'); bar.innerHTML = '';
+  const body = $('b-stackBody'); body.innerHTML = '';
+  layers.forEach(l => {
+    const pct = total ? l.v/total : 0;
+    if(l.v>0 && total>0){
+      bar.innerHTML += `<div class="layer ${l.c}" style="flex:${l.v}">${l.n.split(' ')[0]} ${(pct*100).toFixed(0)}%</div>`;
+    }
+    body.innerHTML += `<tr>
+      <td class="lbl">${l.n}</td>
+      <td>${fmt$(l.v)}</td>
+      <td>${l.r>0 ? (l.r*100).toFixed(1)+'%' : '—'}</td>
+      <td>${total>0 ? (pct*100).toFixed(1)+'%' : '—'}</td></tr>`;
+  });
+  $('b-stackFoot').innerHTML = `<tr style="font-weight:700;background:#0b131f">
+    <td class="lbl">TOTAL</td><td>${fmt$(total)}</td><td>—</td><td>100.0%</td></tr>`;
+  $('b-blendCost').textContent = blend ? fmtPct(blend) : '—';
+}
+
+function renderBizFlags(d){
+  const el = $('b-flags'); el.innerHTML = '';
+  const flags = [];
+  // ===== INSTITUTIONAL RED FLAGS =====
+  if(d.ebitda > 0 && d.ebitda < 2_000_000) flags.push('EBITDA below $2M institutional floor — private credit funds will pass; route to SBA / bank / specialty.');
+  if(d.ebitda <= 0) flags.push('Negative or zero EBITDA — rules out cash-flow lending; ABL / ARR / equity only.');
+  if(d.leverage > 6) flags.push('Pro-forma total leverage >6x — above covenant max for most unitranche/1L-2L; reduce request or add equity.');
+  if(d.srLev > 5) flags.push('Pro-forma senior leverage >5x — above most first-lien lenders\' appetite.');
+  if(d.intCov > 0 && d.intCov < 1.5) flags.push('Interest coverage <1.5x — borderline distressed; lenders will require spring-on covenants or decline.');
+  if(d.concCust >= 0.30) flags.push(`Customer concentration ${(d.concCust*100).toFixed(0)}% — top-customer risk will force concentration reserves or decline.`);
+  if(d.ebitdaMargin > 0 && d.ebitdaMargin < 0.05) flags.push('EBITDA margin <5% — thin cushion; lenders want ≥8-10% for middle market.');
+  if(d.ebitdaPY > 0 && d.ebitda < d.ebitdaPY * 0.9) flags.push(`EBITDA down ${(((d.ebitdaPY-d.ebitda)/d.ebitdaPY)*100).toFixed(0)}% YoY — declining cash flow flagged at IC; QoE mandatory.`);
+  if(d.qoe === 'No' && d.ebitda >= 3_000_000) flags.push('No QoE completed — required for $3M+ EBITDA deals with institutional PC; plan for 6-8 week diligence.');
+  if(d.growth < -0.15) flags.push('Revenue decline >15% — narrative + QoE required; may push pricing +100bp.');
+  // ===== DISQUALIFIERS / SUB-BANKABLE =====
+  if(d.tib < 2) flags.push('Time in business <2 years — rules out SBA, bank, most PC; growth/venture debt or equity only.');
+  if(d.fico < 640) flags.push('FICO <640 — limits to alt-lending; institutional PC funds typically don\'t score by FICO but banks/SBA will.');
+  if(d.derog) flags.push('Recent BK / tax lien — 7yr seasoning for SBA; PC will require explanation + reserves.');
+  if(d.mcaPos >= 2) flags.push('Stacked MCAs (2+) — institutional capital blocked until cleaned up. Refi-into-PC is the exit.');
+  if(d.mcaPos === 1) flags.push('1st-position MCA — must be paid off at close for bank / SBA / PC senior.');
+  if(d.mcaAnnual > d.ebitdaYr && d.mcaAnnual > 0) flags.push('MCA annual payments exceed EBITDA — unsustainable; urgent refi.');
+  if(d.nsf >= 3) flags.push('3+ NSFs in last 3 months — bank-health flag for any institutional lender.');
+  if(flags.length === 0){
+    el.innerHTML = '<div class="flag ok" style="display:block">No institutional red flags detected.</div>';
+  } else {
+    flags.forEach(f => el.innerHTML += `<div class="flag">${f}</div>`);
+  }
+}
+
+// Bind BIZ inputs
+document.querySelectorAll('#page-biz input, #page-biz select').forEach(el => el.addEventListener('input', updateBiz));
+revealBizFields();
+updateBiz();
+</script>
+</body>
+</html>
